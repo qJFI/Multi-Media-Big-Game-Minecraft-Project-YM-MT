@@ -13,14 +13,22 @@ namespace Multi_Media_Minecraft_Project_YM_MT
     public partial class Form1 : Form
     {
         Bitmap off;
-        Bitmap BackImg = new Bitmap("Images/Back.jpg");
+        Bitmap BackImg = new Bitmap("Back.jpg");
+        int ex = -1;
+        int ey = -1;
         public Form1()
         {
 
             this.WindowState = FormWindowState.Maximized;
             Load += Form1_Load;
             Paint += Form1_Paint;
-              
+            MouseMove += Form1_MouseMove;
+        }
+
+        private void Form1_MouseMove(object sender, MouseEventArgs e)
+        {
+            ex = e.X;
+            ey = e.Y;
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
