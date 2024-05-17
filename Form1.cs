@@ -12,9 +12,10 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 {
     public partial class Form1 : Form
     {
+        Bitmap off;
         public Form1()
         {
-            InitializeComponent();
+            
         }
     }
 }
