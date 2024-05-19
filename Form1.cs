@@ -13,7 +13,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
     public partial class Form1 : Form
     {
         Bitmap off;
-        Bitmap BackImg = new Bitmap("Back.jpg");
+        Bitmap BackImg = new Bitmap("Images/Back.jpg");
         int ex = -1;
         int ey = -1;
         public Form1()
