@@ -104,7 +104,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 // ct ->[0] flag ->[1] speed ->[2]
                 Sun.Vars.Add(0);
                 Sun.Vars.Add(0);
-                Sun.Vars.Add(40);
+                Sun.Vars.Add(3);
 
 
 
