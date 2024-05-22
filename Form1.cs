@@ -10,6 +10,44 @@ using System.Windows.Forms;
 
 namespace Multi_Media_Minecraft_Project_YM_MT
 {
+
+    public class Block
+    {
+        public int X;
+        public int Y;
+        public Bitmap img;
+
+        public Block(int x, int y, Bitmap texture)
+        {
+            X = x;
+            Y = y;
+            img = texture;
+        }
+        private Bitmap BlockImages(BlockType type)
+        {
+            switch (type)
+            {
+                case BlockType.Grass:
+                    return new Bitmap("Images/GrassBlock.jpg");
+                case BlockType.Dirt:
+                    return new Bitmap("Images/DirtBlock.jpg");
+                case BlockType.Stone:
+                    return new Bitmap("Images/StoneBlock.jpg");
+                // ay block tanya hna
+                default:
+                    throw new Exception("Unknown block type!");
+            }
+        }
+    }
+
+    public enum BlockType
+    {
+        Grass,
+        Dirt,
+        Stone,
+    }
+
+
     public partial class Form1 : Form
     {
         Bitmap off;
@@ -33,6 +71,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         //global ex, ey
         int ex = -1;
         int ey = -1;
+        List<Block> blocks = new List<Block>();
+
         public Form1()
         {
 
@@ -123,6 +163,13 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             {
                 BasicActor BasicActorTrav = BasicActors[i];
                 g.DrawImage(BasicActorTrav.img, BasicActorTrav.X, BasicActorTrav.Y, BasicActorTrav.W, BasicActorTrav.H);
+            }
+            g.DrawImage(BackImg, 0, 0,ClientSize.Width,ClientSize.Height);
+
+            for (int i = 0; i < blocks.Count; i++)
+            {
+                Block ptrav = blocks[i];
+                g.DrawImage(ptrav.img, ptrav.X, ptrav.Y, ptrav.img.Width, ptrav.img.Height);
             }
         }
 
