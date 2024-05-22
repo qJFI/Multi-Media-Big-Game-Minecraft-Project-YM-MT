@@ -46,21 +46,21 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         Dirt,
         Stone,
     }
-
+    public class BasicActor
+    {
+        public int X, Y, W, H;
+        public Bitmap img;
+        public List<int> Vars = new List<int>();
+    }
 
     public partial class Form1 : Form
     {
         Bitmap off;
-        Bitmap BackImg = new Bitmap("Images/Back.jpg");
+        Bitmap BackImg = new Bitmap("Images/Back.png");
         Bitmap SunImg = new Bitmap("Images/sun.png");
         Rectangle rctSrc, rctDst;
 
-        public class BasicActor
-        {
-            public int X, Y, W, H;
-            public Bitmap img;
-            public int helperVar1, helperVar2;
-        }
+       
 
         BasicActor Sun = new BasicActor();
         List<BasicActor> BasicActors = new List<BasicActor>();
@@ -92,13 +92,22 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         }
         void CreateSome()
         {
-            rctSrc = new Rectangle(stX, stY, BackImg.Width / 4, BackImg.Height);
-            rctDst = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
-            Sun.X = 100;
-            Sun.Y = 300;
-            Sun.W = ClientSize.Height/6;
-            Sun.H = ClientSize.Height/6;
-            Sun.img = SunImg;
+    
+               
+                rctSrc = new Rectangle(stX, stY, BackImg.Width / 2, BackImg.Height);
+                rctDst = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
+                Sun.X = ClientSize.Width+100;
+                Sun.Y = 300;
+                Sun.W = ClientSize.Height/6;
+                Sun.H = ClientSize.Height/6;
+                Sun.img = SunImg;
+                // ct ->[0] flag ->[1] speed ->[2]
+                Sun.Vars.Add(0);
+                Sun.Vars.Add(0);
+                Sun.Vars.Add(40);
+
+
+
             BasicActor pnn = Sun;
             BasicActors.Add(pnn);
 
@@ -108,10 +117,51 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         private void T_Tick(object sender, EventArgs e)
         {
 
-            if (ctTimer % 10==0) { 
+            if (ctTimer % 2==0) { 
                 rctSrc.X += 1;
+
+
+
+                if (Sun.Vars[1] == 0)
+                {
+
+                    Sun.X -= 3 * Sun.Vars[2];
+                    Sun.Y -= Sun.Vars[2];
+                }
+                if (Sun.Vars[1] == 1)
+                {
+                    Sun.X -= 3 * Sun.Vars[2];
+                    Sun.Y += Sun.Vars[2];
+                }
+
+
+                /*
+                 *   if we will do effects
+                 *  if (Sun.Vars[1]==0)
+                 * if (Sun.Vars[1] == 2)
+                 {
+                     Sun.X -= 3 * Sun.Vars[2];
+                     Sun.Y -= Sun.Vars[2];
+                 }
+                 if (Sun.Vars[1] == 3)
+                 {
+                     Sun.X -= 3 * Sun.Vars[2];
+                     Sun.Y += Sun.Vars[2];
+                 }*/
+
+
+
+
+
+
             }
 
+            if (Sun.Y <= 0 && Sun.Vars[1] == 0)
+                Sun.Vars[1] = 1;
+            if (Sun.X >= ClientSize.Width+100)
+                Sun.Vars[1] = 2; //finish
+       
+         
 
             ctTimer++;
             DrawDouble(CreateGraphics());
@@ -164,7 +214,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 BasicActor BasicActorTrav = BasicActors[i];
                 g.DrawImage(BasicActorTrav.img, BasicActorTrav.X, BasicActorTrav.Y, BasicActorTrav.W, BasicActorTrav.H);
             }
-            g.DrawImage(BackImg, 0, 0,ClientSize.Width,ClientSize.Height);
+            
 
             for (int i = 0; i < blocks.Count; i++)
             {
