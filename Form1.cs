@@ -350,6 +350,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
             Animation blocks = new Animation();
             blocks.imgs.Add(new Bitmap("Images/Blocks/grass.png")); // Adding Grass image
+            blocks.imgs.Add(new Bitmap("Images/Blocks/grass.png")); // Adding Grass image
             blocks.imgs.Add(new Bitmap("Images/Blocks/stone.png")); // Adding Stone image
             Groups[1].Animations.Add(blocks);
         }
