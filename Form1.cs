@@ -130,26 +130,28 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     blockPnn.W = blockWidth;
                     blockPnn.H = blockHeight;
 
-                    if (j < 5)
+                    if (j < 1)
                     {
                         blockPnn.Img = Groups[1].Animations[0].imgs[0]; // Always grass for the first 5 rows from the bottom
                     }
+                    else if (j<2)
+                    {
+                        blockPnn.Img = Groups[1].Animations[0].imgs[1];
+                    }
                     else
                     {
-                        int biomeType = RR.Next(3); // 0: Grass, 1: Stone, 2: Mixed
-                        if (biomeType == 0)
-                        {
-                            blockPnn.Img = Groups[1].Animations[0].imgs[0]; // Grass biome
-                        }
-                        else if (biomeType == 1)
-                        {
-                            blockPnn.Img = Groups[1].Animations[0].imgs[1]; // Stone biome
+                        int isStone = RR.Next(0, 4);
+
+                        if (isStone == 0) { 
+                            int randomBlock = RR.Next(2,Groups[1].Animations[0].imgs.Count);
+                            blockPnn.Img = Groups[1].Animations[0].imgs[randomBlock];
                         }
                         else
                         {
-                            int randomBlock = RR.Next(0,Groups[1].Animations[0].imgs.Count);
-                            blockPnn.Img = Groups[1].Animations[0].imgs[randomBlock]; 
+                            blockPnn.Img = Groups[1].Animations[0].imgs[2];
                         }
+                            
+                        
                     }
 
                     rowBlocks.Add(blockPnn);
@@ -308,6 +310,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
         }
 
+
         void ImagesReady() //this function to add the photos in the memory
         {
             Group pnn = new Group();  // 1- hero Right 2- hero Left
@@ -350,10 +353,18 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
             Animation blocks = new Animation();
             blocks.imgs.Add(new Bitmap("Images/Blocks/grass.png")); // Adding Grass image
-            blocks.imgs.Add(new Bitmap("Images/Blocks/grass.png")); // Adding Grass image
+            blocks.imgs.Add(new Bitmap("Images/Blocks/Dirt.png"));
             blocks.imgs.Add(new Bitmap("Images/Blocks/stone.png")); // Adding Stone image
+            blocks.imgs.Add(new Bitmap("Images/Blocks/Coal.png"));
+            blocks.imgs.Add(new Bitmap("Images/Blocks/Diamond.png"));
+            blocks.imgs.Add(new Bitmap("Images/Blocks/Emerald.png"));
+            blocks.imgs.Add(new Bitmap("Images/Blocks/Gold.png"));
+            blocks.imgs.Add(new Bitmap("Images/Blocks/Ruby.png"));
+            blocks.imgs.Add(new Bitmap("Images/Blocks/Sapphire.png"));
+            blocks.imgs.Add(new Bitmap("Images/Blocks/Silver.png"));
             Groups[1].Animations.Add(blocks);
         }
+
 
         void Zoom(int type)
         {
