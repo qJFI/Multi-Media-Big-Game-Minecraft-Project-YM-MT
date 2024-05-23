@@ -10,66 +10,36 @@ using System.Windows.Forms;
 
 namespace Multi_Media_Minecraft_Project_YM_MT
 {
-  /*  public class Block
-    {
-        public int X;
-        public int Y;
-        public Bitmap img;
-
-        public Block(int x, int y, Bitmap texture)
-        {
-            X = x;
-            Y = y;
-            img = texture;
-        }
-        private Bitmap BlockImages(BlockType type)
-        {
-            switch (type)
-            {
-                case BlockType.Grass:
-                    return new Bitmap("Images/GrassBlock.jpg");
-                case BlockType.Dirt:
-                    return new Bitmap("Images/DirtBlock.jpg");
-                case BlockType.Stone:
-                    return new Bitmap("Images/StoneBlock.jpg");
-                default:
-                    throw new Exception("Unknown block type!");
-            }
-        }
-    }
-
-    public enum BlockType
-    {
-        Grass,
-        Dirt,
-        Stone,
-    }
-*/
     public class BasicActor
     {
         public int X, Y, W, H;
         public List<Bitmap> imgs = new List<Bitmap>();
-        public int iframe=0;
+        public int iframe = 0;
         public List<int> Vars = new List<int>();
     }
+
     class Animation
     {
         public List<Bitmap> imgs = new List<Bitmap>();
-
     }
+
     class Group // for example : Blocks 
     {
         public string groupName;
-        public List<Animation> Animations = new List<Animation>(); 
-
+        public List<Animation> Animations = new List<Animation>();
     }
 
+    public class Block
+    {
+        public int X, Y, W, H;
+        public Bitmap Img;
+    }
 
     public partial class Form1 : Form
     {
         Bitmap off;
         Bitmap BackImg = new Bitmap("Images/Back.png");
-        
+        Bitmap GrassImg = new Bitmap("Images/grass.png");
         Bitmap SunImg = new Bitmap("Images/sun.png");
         Bitmap HeroImg = new Bitmap("Images/hero1.png");
         Rectangle rctSrc, rctDst;
@@ -77,6 +47,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         BasicActor Sun;
         List<BasicActor> SingleActors = new List<BasicActor>();
         int iframe = 0;
+        int zoom = 0;
+        int zoomRange = 10;
         List<Group> Groups = new List<Group>();
 
         int stX = 0, stY = 0;
@@ -84,7 +56,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         int ctTimer = 0;
         int ex = -1;
         int ey = -1;
-       /* List<Block> blocks = new List<Block>();*/
+        List<Block> blocks = new List<Block>();
 
         public Form1()
         {
@@ -122,12 +94,33 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             hero = new BasicActor();
             hero.W = HeroImg.Width / 2;
             hero.H = HeroImg.Height / 3;
-            hero.X = ClientSize.Width/2 ;
-            hero.Y = ClientSize.Height- hero.H;
+            hero.X = ClientSize.Width / 2;
+            hero.Y = ClientSize.Height - hero.H- 52;
             string abo3le = Groups[0].groupName;
             hero.imgs = Groups[0].Animations[0].imgs; //choosed group
 
             SingleActors.Add(hero);
+
+            // Create first row of blocks
+            CreateFirstRowOfBlocks();
+        }
+
+        void CreateFirstRowOfBlocks()
+        {
+            int blockWidth = 60; // Set your block width
+            int blockHeight = 60; // Set your block height
+            int yPos = ClientSize.Height - blockHeight; // Y position of the blocks
+            for (int i = 0; i < ClientSize.Width; i += blockWidth)
+            {
+                Block blockPnn = new Block();
+                blockPnn.X = i;
+                blockPnn.Y = yPos;
+                blockPnn.W = blockWidth;
+                blockPnn.H = blockHeight;
+                blockPnn.Img = GrassImg;
+
+                blocks.Add(blockPnn);
+            }
         }
 
         private void T_Tick(object sender, EventArgs e)
@@ -146,7 +139,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     Sun.X -= 3 * Sun.Vars[2];
                     Sun.Y += Sun.Vars[2];
                 }
-               
             }
 
             if (Sun.Y <= 0 && Sun.Vars[1] == 0)
@@ -162,13 +154,12 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         {
             switch (e.KeyCode)
             {
-
                 case Keys.D:
-                    hero.X+=5;
+                    hero.X += 5;
                     hero.iframe++;
                     break;
                 case Keys.A:
-                    hero.X-=5;
+                    hero.X -= 5;
                     break;
                 case Keys.W:
                     hero.Y -= 5; //shouldn't work
@@ -181,7 +172,39 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
         private void Form1_MouseUp(object sender, MouseEventArgs e) { }
 
-        private void Form1_MouseDown(object sender, MouseEventArgs e) { }
+        private void Form1_MouseDown(object sender, MouseEventArgs e)
+        {
+            switch (e.Button)
+            {
+                case MouseButtons.Left:
+                    zoom += zoomRange;
+                    hero.W += zoomRange;
+                    hero.H += zoomRange;
+                    for (int i = 0; i < blocks.Count; i++)
+                    {
+                        Block block = blocks[i];
+                        block.W += zoomRange;
+                        block.H += zoomRange;
+                        block.X = (i * block.W) - (zoomRange * i);
+                    }
+                    break;
+                case MouseButtons.Right:
+                    if (zoom > 0) //  zoom doesn't go negative
+                    {
+                        zoom -= zoomRange;
+                        hero.W -= zoomRange;
+                        hero.H -= zoomRange;
+                        for (int i = 0; i < blocks.Count; i++)
+                        {
+                            Block block = blocks[i];
+                            block.W -= zoomRange;
+                            block.H -= zoomRange;
+                            block.X = (i * block.W) - (zoomRange * i);
+                        }
+                    }
+                    break;
+            }
+        }
 
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
@@ -199,7 +222,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             off = new Bitmap(ClientSize.Width, ClientSize.Height);
             ImagesReady();
             CreateSome();
-            
         }
 
         void DrawScene(Graphics g)
@@ -213,33 +235,27 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 g.DrawImage(BasicActorTrav.imgs[BasicActorTrav.iframe % BasicActorTrav.imgs.Count], BasicActorTrav.X, BasicActorTrav.Y, BasicActorTrav.W, BasicActorTrav.H);
             }
 
-           /* for (int i = 0; i < blocks.Count; i++)
+            for (int i = 0; i < blocks.Count; i++)
             {
-                Block ptrav = blocks[i];
-                g.DrawImage(ptrav.img, ptrav.X, ptrav.Y, ptrav.img.Width, ptrav.img.Height);
-            }*/
+                Block block = blocks[i];
+                g.DrawImage(block.Img, block.X, block.Y, block.W, block.H);
+            }
         }
-
 
         void ImagesReady() //this function to add the photos in the memory
         {
-
-            
             Group pnn = new Group();
             pnn.groupName = "hero";
             Groups.Add(pnn);
 
-
             Animation heroRight = new Animation();
-            for(int i = 0;i < 5;i++)
+            for (int i = 0; i < 5; i++)
             {
                 heroRight.imgs.Add(new Bitmap("Images/SimpleSteve/" + i + ".png"));
             }
             Groups[0].Animations.Add(heroRight);
-
-            
-
         }
+
         void DrawDouble(Graphics g)
         {
             Graphics g2 = Graphics.FromImage(off);
