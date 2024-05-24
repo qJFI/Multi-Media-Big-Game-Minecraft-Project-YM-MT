@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
+
+//لوجيك للكاميرا نعملو: نمسك مكان الستيف ونروح نجيب النص الي قبليه ونبدا منه وننهي فنهاية الشاشة
+
 namespace Multi_Media_Minecraft_Project_YM_MT
 {
     public class BasicActor
@@ -346,7 +349,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                             {
                                 isLeftClick = 1;
                                 breakingI = i; //for removing the block
-                                breakingJ = j; //for removing the block
+                                breakingJ = j; //for removing the block 
                                 breaking = new AnimatedBlock();
                                 breaking.X = block.X;
                                 breaking.Y = block.Y;
@@ -362,7 +365,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 case MouseButtons.Right:
                     // Right mouse button logic
                     break;
-                case MouseButtons.XButton1:  //The bonus button 1
+                case MouseButtons.XButton1:  //The bonus button 1 ملهمش فايدة بس بكتشف
                     Text = "Testo1";
                     break;
                 case MouseButtons.XButton2:  //The bonus button 2
