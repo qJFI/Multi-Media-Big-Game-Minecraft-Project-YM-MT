@@ -138,8 +138,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         }
     }
 
-    
-
 
     public class Camera
     {
@@ -649,7 +647,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 g.DrawImage(BasicActorTrav.imgs[BasicActorTrav.iframe % BasicActorTrav.imgs.Count], BasicActorTrav.X , BasicActorTrav.Y , BasicActorTrav.W, BasicActorTrav.H);
             }
 
-            g.DrawImage(hero.imgs[hero.iframe % hero.imgs.Count], hero.X - viewRect.X, hero.Y - viewRect.Y, hero.W, hero.H);
+            g.DrawImage(hero.imgs[hero.iframe / 5 % hero.imgs.Count], hero.X - viewRect.X, hero.Y - viewRect.Y, hero.W, hero.H);
 
             for (int j = 0; j < blocks2D.Count; j++)
             {
@@ -660,9 +658,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     g.DrawImage(block.Img, block.X - viewRect.X, block.Y - viewRect.Y, block.W, block.H);
                 }
             }
-/*
-         
-*/
+
             if (breaking != null)
             {
                 g.DrawImage(breaking.imgs[breaking.iframe % breaking.imgs.Count], breaking.X - viewRect.X, breaking.Y - viewRect.Y, breaking.W, breaking.H);
