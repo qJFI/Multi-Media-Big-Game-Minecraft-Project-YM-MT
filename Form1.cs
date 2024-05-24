@@ -53,8 +53,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
     public class Tree
     {
-        public List<Block> WoodBlocks;
-        public List<Block> TreeGrassBlocks;
+        public List<Block> WoodBlocks { get; private set; }
+        public List<Block> TreeGrassBlocks { get; private set; }
 
         public Tree(int baseX, int baseY, Bitmap woodImage, Bitmap treeGrassImage)
         {
@@ -75,7 +75,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 WoodBlocks.Add(woodBlock);
             }
 
-            
+
             int treeGrassTopY = baseY - (5 * 60) - 3 * 60;
             for (int i = 0; i < 3; i++)
             {
@@ -83,8 +83,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 {
                     Block treeGrassBlock = new Block
                     {
-                        X = baseX - 60 + j * 60, 
-                        Y = treeGrassTopY + i * 60 + 60, 
+                        X = baseX - 60 + j * 60,
+                        Y = treeGrassTopY + i * 60 + 60,
                         W = 60,
                         H = 60,
                         Img = treeGrassImage
@@ -94,6 +94,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
         }
     }
+
 
     public class Camera
     {
@@ -276,8 +277,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 Tree tree = new Tree(x, y, woodImage, treeGrassImage);
                 trees.Add(tree);
             }
-            Trees2D.Add(trees);
-            
         }
 
         bool CheckOverlap(List<int> existingPositions, int newX)
@@ -286,7 +285,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             {
                 int position = existingPositions[i];
 
-                
+
                 if (newX >= position - 100 && newX <= position + 150)
                 {
                     return true;
@@ -294,6 +293,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
             return false;
         }
+
 
 
         private void T_Tick(object sender, EventArgs e)
@@ -580,6 +580,23 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
+            for (int i = 0; i < trees.Count; i++)
+            {
+                Tree tree = trees[i];
+
+                for (int j = 0; j < tree.WoodBlocks.Count; j++)
+                {
+                    Block woodBlock = tree.WoodBlocks[j];
+                    g.DrawImage(woodBlock.Img, woodBlock.X - viewRect.X, woodBlock.Y - viewRect.Y, woodBlock.W, woodBlock.H);
+                }
+
+                for (int j = 0; j < tree.TreeGrassBlocks.Count; j++)
+                {
+                    Block treeGrassBlock = tree.TreeGrassBlocks[j];
+                    g.DrawImage(treeGrassBlock.Img, treeGrassBlock.X - viewRect.X, treeGrassBlock.Y - viewRect.Y, treeGrassBlock.W, treeGrassBlock.H);
+                }
+            }
+
             if (breaking != null)
             {
                 g.DrawImage(breaking.imgs[breaking.iframe % breaking.imgs.Count], breaking.X - viewRect.X, breaking.Y - viewRect.Y, breaking.W, breaking.H);
@@ -633,6 +650,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Animation staticBlocks = new Animation();
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/grass.png")); // Adding Grass image
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Dirt.png"));
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Oak.png")); // Adding Grass image
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/grassleaves.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/stone.png")); // Adding Stone image
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Coal.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Diamond.png"));
