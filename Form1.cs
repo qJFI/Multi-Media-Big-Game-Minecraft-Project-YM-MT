@@ -28,6 +28,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
     {
         public int X, Y, W, H;
         public Bitmap Img;
+        public int ID ; //made for the Zoom 
     }
 
     public class AnimatedBlock
@@ -46,7 +47,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int dir = 1; //right -1 left
         public int speed = 10;
         public bool isJumping = false;
-        public int jumpPower = 30;
+        public int jumpCt = 20;
         public int force = 0;
     }
 
@@ -130,22 +131,22 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             int rows = 10; // Number of rows of blocks
             int yPos = ClientSize.Height - blockHeight * rows + 400; // Starting Y position of the bottom row
 
-            for (int j = 0; j < rows; j++)
+            for (int i = 0; i < rows; i++)
             {
                 List<Block> rowBlocks = new List<Block>();
-                for (int i = 0; i < columns; i++)
+                for (int j = 0; j < columns; j++)
                 {
                     Block blockPnn = new Block();
-                    blockPnn.X = i * blockWidth;
-                    blockPnn.Y = yPos + (j * blockHeight);
+                    blockPnn.X = j * blockWidth;
+                    blockPnn.Y = yPos + (i * blockHeight);
                     blockPnn.W = blockWidth;
                     blockPnn.H = blockHeight;
-
-                    if (j < 1)
+                    blockPnn.ID = j;
+                    if (i < 1)
                     {
                         blockPnn.Img = Groups[1].Animations[0].imgs[0]; // Always grass for the first 5 rows from the bottom
                     }
-                    else if (j < 2)
+                    else if (i < 2)
                     {
                         blockPnn.Img = Groups[1].Animations[0].imgs[1];
                     }
@@ -197,12 +198,12 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             // Gravity and jump logic
             if (hero.isJumping)
             {
-                hero.Y -= hero.jumpPower;
-                hero.jumpPower -= 1;
-                if (hero.jumpPower < 0)
+                hero.Y -= hero.jumpCt;
+                hero.jumpCt -= 4;
+                if (hero.jumpCt < 0)
                 {
                     hero.isJumping = false;
-                    hero.jumpPower = 15;
+                    hero.jumpCt = 20;
                 }
             }
             else
@@ -215,7 +216,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
             if(breaking!= null)
             {
-                if(ctTimer%10==0 && breaking.iframe<4)
+                if(ctTimer%3==0 && breaking.iframe<4)
                 {
                     breaking.iframe++;
                 }
@@ -298,7 +299,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     hero.dir = -1;
                     break;
                 case Keys.W:
-                case Keys.Up:
+                case Keys.Up:               //Jumping
+                case Keys.Space:
                     if (IsOnGround() && !hero.isJumping)
                     {
                         hero.isJumping = true;
@@ -308,10 +310,10 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 case Keys.Down:
                     // hero crouch logic if needed
                     break;
-                case Keys.Z:
+                case Keys.Z:      ///Zoom-In
                     Zoom(1);
                     break;
-                case Keys.C:
+                case Keys.C:     //Zoom-Up
                     Zoom(2);
                     break;
             }
@@ -343,8 +345,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                 e.Y  >= block.Y) // Adjust 10 as per the gravity
                             {
                                 isLeftClick = 1;
-                                breakingI = i;
-                                breakingJ = j;
+                                breakingI = i; //for removing the block
+                                breakingJ = j; //for removing the block
                                 breaking = new AnimatedBlock();
                                 breaking.X = block.X;
                                 breaking.Y = block.Y;
@@ -507,7 +509,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         block.H += zoomRange;
                         block.Y += j*zoomRange ; // Adjust Y position to account for zoom
                        /* block.X -= zoomRange / 2; // Adjust X position to account for zoom*/
-                        block.X = (i * block.W) - (zoomRange * i);
+                        block.X = (block.ID * block.W) - (zoomRange * block.ID)-zoom*17 - zoom/ 17; //hardcoded last 2
                     }
                 }
             }
@@ -530,7 +532,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                             block.W -= zoomRange;
                             block.H -= zoomRange;
                             block.Y -= j * zoomRange; // Adjust Y position to account for zoom
-                            block.X = (i * block.W) - (zoomRange * i); // Adjust X position to account for zoom
+                            block.X = (block.ID * block.W) - (zoomRange * i) - zoom * 17 - zoom / 17; // Adjust X position to account for zoom
                         }
                     }
                 }
