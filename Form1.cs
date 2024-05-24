@@ -425,7 +425,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
-            if (breaking != null)
+            if (breaking != null && isBreaking == 1)
             {
                 if (ctTimer % 3 == 0 && breaking.iframe < 5)
                 {
