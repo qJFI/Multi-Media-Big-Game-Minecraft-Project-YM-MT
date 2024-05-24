@@ -83,6 +83,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
     {
         Bitmap off;
         Bitmap BackImg = new Bitmap("Images/Back.png");
+        Bitmap BorderImg = new Bitmap("Images/Border.png");
         Bitmap SunImg = new Bitmap("Images/sun.png");
         Bitmap HeroImg = new Bitmap("Images/hero1.png");
         Rectangle rctSrc, rctDst;
@@ -93,7 +94,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         int iframe = 0;
         int breakingI = -1, breakingJ = -1;
         int zoom = -10;
-        int isLeftClick = 0;
+        int isBreaking = 0;
         int zoomRange = 10;
         List<Group> Groups = new List<Group>();
 
@@ -242,7 +243,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
-            if (breaking != null)
+            if (isBreaking ==1)
             {
                 if (ctTimer % 3 == 0 && breaking.iframe < 5)
                 {
@@ -252,6 +253,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 {
                     blocks2D[breakingI].RemoveAt(breakingJ);
                     breaking = null;
+                    isBreaking = 0;
                 }
             }
 
@@ -347,7 +349,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
         private void Form1_MouseUp(object sender, MouseEventArgs e)
         {
-            isLeftClick = 0;
+            isBreaking = 0;
             breaking = null;
         }
 
@@ -369,7 +371,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                 e.Y + viewRect.Y >= block.Y) // Adjust 10 as per the gravity
                             {
                                 Text = "works";
-                                isLeftClick = 1;
+                                isBreaking = 1;
                                 breakingI = i; //for removing the block
                                 breakingJ = j; //for removing the block 
                                 breaking = new AnimatedBlock();
@@ -403,6 +405,35 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         {
             ex = e.X - 20;
             ey = e.Y - 30;
+            if (isBreaking == 0) { 
+            Rectangle viewRect = camera.GetViewRect();
+            for (int i = 0; i < blocks2D.Count; i++)
+            {
+                List<Block> row = blocks2D[i];
+                for (int j = 0; j < row.Count; j++)
+                {
+                    Block block = row[j];
+                    if (e.X + viewRect.X < block.X + block.W &&
+                        e.X + viewRect.X > block.X &&
+                        e.Y + viewRect.Y <= block.Y + block.H &&
+                        e.Y + viewRect.Y >= block.Y) // Adjust 10 as per the gravity
+                    {
+                        isBreaking = 0;
+                        Text = "works";
+                        breakingI = i; //for removing the block
+                        breakingJ = j; //for removing the block 
+                        breaking = new AnimatedBlock();
+                        breaking.X = block.X;
+                        breaking.Y = block.Y;
+                        breaking.W = block.W;
+                        breaking.H = block.H;
+                        breaking.imgs = Groups[1].Animations[2].imgs;
+                        breaking.iframe = 0; // Start breaking animation from the first frame
+                        break;
+                    }
+                    }
+                }
+            }
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
@@ -442,9 +473,15 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
-            if (breaking != null)
+            if (isBreaking ==1)
             {
                 g.DrawImage(breaking.imgs[breaking.iframe % breaking.imgs.Count], breaking.X - viewRect.X, breaking.Y - viewRect.Y, breaking.W, breaking.H);
+                g.DrawImage(BorderImg, breaking.X - viewRect.X, breaking.Y - viewRect.Y, breaking.W, breaking.H);
+            }
+            else if( breaking != null)
+            {
+                g.DrawImage(BorderImg, breaking.X - viewRect.X, breaking.Y - viewRect.Y, breaking.W, breaking.H);
+
             }
         }
 
@@ -516,6 +553,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
         void Zoom(int type)
         {
+            breaking = null;
+            isBreaking = 0;
             if (type == 1) // Zoom in
             {
                 zoom += zoomRange;
@@ -560,7 +599,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
-            DrawDouble(CreateGraphics()); // Redraw the scene after zooming
+       
         }
 
         void DrawDouble(Graphics g)
