@@ -315,6 +315,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     Sun.X -= 3 * Sun.Vars[2];
                     Sun.Y += Sun.Vars[2];
                 }
+             
             }
 
             // Gravity and jump logic
@@ -336,7 +337,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
-            if (isBreaking == 1)
+            if (breaking != null)
             {
                 if (ctTimer % 3 == 0 && breaking.iframe < 5)
                 {
@@ -372,6 +373,13 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 Sun.Vars[1] = 1;
             if (Sun.X >= ClientSize.Width + 100)
                 Sun.Vars[1] = 2; //finish
+            if (Sun.X + Sun.W <= 0)
+            {
+                Sun.Vars[1] = 0; //finish
+                Sun.X = ClientSize.Width + 100;
+                Sun.Y = 300;
+          
+            }
 
             ctTimer++;
             camera.Update(hero); // Update camera position based on hero's position
@@ -442,7 +450,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
         private void Form1_MouseUp(object sender, MouseEventArgs e)
         {
-            isLeftClick = 0;
+            isBreaking = 0;
             breaking = null;
             isBreaking = 0;
         }
@@ -469,7 +477,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                 e.Y + viewRect.Y >= block.Y) // Adjust 10 as per the gravity
                             {
                                 Text = "works";
-                                isBreaking = 1;
                                 isLeftClick = 1;
                                 breakingI = i; //for removing the block
                                 breakingJ = j; //for removing the block 
@@ -534,36 +541,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         {
             ex = e.X - 20;
             ey = e.Y - 30;
-            if (isBreaking == 0)
-            {
-                Rectangle viewRect = camera.GetViewRect();
-                for (int i = 0; i < blocks2D.Count; i++)
-                {
-                    List<Block> row = blocks2D[i];
-                    for (int j = 0; j < row.Count; j++)
-                    {
-                        Block block = row[j];
-                        if (e.X + viewRect.X < block.X + block.W &&
-                            e.X + viewRect.X > block.X &&
-                            e.Y + viewRect.Y <= block.Y + block.H &&
-                            e.Y + viewRect.Y >= block.Y) // Adjust 10 as per the gravity
-                        {
-                            isBreaking = 0;
-                            Text = "works";
-                            breakingI = i; //for removing the block
-                            breakingJ = j; //for removing the block 
-                            breaking = new AnimatedBlock();
-                            breaking.X = block.X;
-                            breaking.Y = block.Y;
-                            breaking.W = block.W;
-                            breaking.H = block.H;
-                            breaking.imgs = Groups[1].Animations[2].imgs;
-                            breaking.iframe = 0; // Start breaking animation from the first frame
-                            break;
-                        }
-                    }
-                }
-            }
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
@@ -588,10 +565,10 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             for (int i = 0; i < SingleActors.Count; i++)
             {
                 BasicActor BasicActorTrav = SingleActors[i];
-                g.DrawImage(BasicActorTrav.imgs[BasicActorTrav.iframe % BasicActorTrav.imgs.Count], BasicActorTrav.X - viewRect.X, BasicActorTrav.Y - viewRect.Y, BasicActorTrav.W, BasicActorTrav.H);
+                g.DrawImage(BasicActorTrav.imgs[BasicActorTrav.iframe % BasicActorTrav.imgs.Count], BasicActorTrav.X , BasicActorTrav.Y , BasicActorTrav.W, BasicActorTrav.H);
             }
 
-            g.DrawImage(hero.imgs[hero.iframe / 5 % hero.imgs.Count], hero.X - viewRect.X, hero.Y - viewRect.Y, hero.W, hero.H);
+            g.DrawImage(hero.imgs[hero.iframe % hero.imgs.Count], hero.X - viewRect.X, hero.Y - viewRect.Y, hero.W, hero.H);
 
             for (int j = 0; j < blocks2D.Count; j++)
             {
@@ -603,32 +580,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
-            for (int i = 0; i < trees.Count; i++)
-            {
-                Tree tree = trees[i];
-
-                for (int j = 0; j < tree.WoodBlocks.Count; j++)
-                {
-                    Block woodBlock = tree.WoodBlocks[j];
-                    g.DrawImage(woodBlock.Img, woodBlock.X - viewRect.X, woodBlock.Y - viewRect.Y, woodBlock.W, woodBlock.H);
-                }
-
-                for (int j = 0; j < tree.TreeGrassBlocks.Count; j++)
-                {
-                    Block treeGrassBlock = tree.TreeGrassBlocks[j];
-                    g.DrawImage(treeGrassBlock.Img, treeGrassBlock.X - viewRect.X, treeGrassBlock.Y - viewRect.Y, treeGrassBlock.W, treeGrassBlock.H);
-                }
-            }
-
-            if (isBreaking == 1)
+            if (breaking != null)
             {
                 g.DrawImage(breaking.imgs[breaking.iframe % breaking.imgs.Count], breaking.X - viewRect.X, breaking.Y - viewRect.Y, breaking.W, breaking.H);
-                g.DrawImage(BorderImg, breaking.X - viewRect.X, breaking.Y - viewRect.Y, breaking.W, breaking.H);
-            }
-            else if (breaking != null)
-            {
-                g.DrawImage(BorderImg, breaking.X - viewRect.X, breaking.Y - viewRect.Y, breaking.W, breaking.H);
-
             }
         }
 
@@ -677,11 +631,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Groups[0].Animations.Add(heroLeft);
 
             Animation staticBlocks = new Animation();
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/grass.png"));
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/grass.png")); // Adding Grass image
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Dirt.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Oak.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/treeleaves.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/stone.png"));
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/stone.png")); // Adding Stone image
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Coal.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Diamond.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Emerald.png"));
@@ -689,7 +641,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Ruby.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Sapphire.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Silver.png"));
-            
             Groups[1].Animations.Add(staticBlocks);
 
             Animation blockBorders = new Animation();
@@ -707,6 +658,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
         void Zoom(int type)
         {
+            breaking = null;
+            isBreaking = 0;
             if (type == 1) // Zoom in
             {
                 zoom += zoomRange;
@@ -751,7 +704,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
-            DrawDouble(CreateGraphics());
+            DrawDouble(CreateGraphics()); // Redraw the scene after zooming
         }
 
         void DrawDouble(Graphics g)
