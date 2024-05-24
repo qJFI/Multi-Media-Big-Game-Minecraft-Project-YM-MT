@@ -452,7 +452,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         {
             isBreaking = 0;
             breaking = null;
-            isBreaking = 0;
+          
         }
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
