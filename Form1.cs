@@ -587,45 +587,36 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                 }
                                 else if (block.Img == Groups[1].Animations[0].imgs[5]) // Coal block
                                 {
-                                    // Add stone block item to hero's inventory
                                     hero.Inventory.Add(new InventoryItem(3, 1));
                                 }
-                                break;
-
-                            }
-                        }
-                    }
-
-
-                    /* still work in progress logic of breaking tree blocks
-                    for (int i = 0; i < Trees2D.Count; i++)
-                    {
-                        List<Tree> row = Trees2D[i];
-                        for (int j = 0; j < row.Count; j++)
-                        {
-                            Tree tree = row[j];
-                            if (e.X + viewRect.X < tree.X + tree.W &&
-                                e.X + viewRect.X > tree.X &&
-                                e.Y + viewRect.Y <= tree.Y + tree.H &&
-                                e.Y + viewRect.Y >= tree.Y) // Adjust 10 as per the gravity
-                            {
-                                Text = "works";
-                                isBreaking = 1;
-                                isLeftClick = 1;
-                                breakingI = i; //for removing the block
-                                breakingJ = j; //for removing the block 
-                                breaking = new AnimatedBlock();
-                                breaking.X = tree.X;
-                                breaking.Y = tree.Y;
-                                breaking.W = tree.W;
-                                breaking.H = tree.H;
-                                breaking.imgs = Groups[1].Animations[2].imgs;
-                                breaking.iframe = 0; // Start breaking animation from the first frame
+                                else if (block.Img == Groups[1].Animations[0].imgs[6]) // Diamond block
+                                {
+                                    hero.Inventory.Add(new InventoryItem(4, 1));
+                                }
+                                else if (block.Img == Groups[1].Animations[0].imgs[7]) // Emerald block
+                                {
+                                    hero.Inventory.Add(new InventoryItem(5, 1));
+                                }
+                                else if (block.Img == Groups[1].Animations[0].imgs[8]) // Gold block
+                                {
+                                    hero.Inventory.Add(new InventoryItem(6, 1));
+                                }
+                                else if (block.Img == Groups[1].Animations[0].imgs[9]) // Ruby block
+                                {
+                                    hero.Inventory.Add(new InventoryItem(7, 1));
+                                }
+                                else if (block.Img == Groups[1].Animations[0].imgs[10]) // Sapphire block
+                                {
+                                    hero.Inventory.Add(new InventoryItem(8, 1));
+                                }
+                                else if (block.Img == Groups[1].Animations[0].imgs[11]) // Silver block
+                                {
+                                    hero.Inventory.Add(new InventoryItem(9, 1));
+                                }
                                 break;
                             }
                         }
                     }
-                    */
 
                     break;
                 case MouseButtons.Right:
