@@ -55,6 +55,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         List<BasicActor> SingleActors = new List<BasicActor>();
         int iframe = 0;
         int zoom = -10;
+        int isLeftClick = 0;
         int zoomRange = 10;
         List<Group> Groups = new List<Group>();
 
@@ -201,6 +202,14 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
+            if(isLeftClick==1)
+            {
+                if(ctTimer%10==0)
+                {
+                    iframe++;
+                }
+            }
+
             //always
             if (hero.isHeroStable == 0) //always
             {
@@ -289,14 +298,20 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
         }
 
-        private void Form1_MouseUp(object sender, MouseEventArgs e) { }
+        private void Form1_MouseUp(object sender, MouseEventArgs e) 
+        {
+
+            isLeftClick = 0;
+        
+        
+        }
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
             switch (e.Button)
             {
                 case MouseButtons.Left:
-                    // Left mouse button logic
+                    isLeftClick = 1;
                     break;
                 case MouseButtons.Right:
                     // Right mouse button logic
@@ -313,10 +328,12 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
         }
 
+        
+
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
-            ex = e.X;
-            ey = e.Y;
+            ex = e.X-20;
+            ey = e.Y-30;
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
@@ -343,7 +360,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
 
             g.DrawImage(hero.imgs[hero.iframe % hero.imgs.Count], hero.X, hero.Y, hero.W, hero.H);
-
+            
             for (int j = 0; j < blocks2D.Count; j++)
             {
                 List<Block> rowBlocks = blocks2D[j];
@@ -353,16 +370,22 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     g.DrawImage(block.Img, block.X, block.Y, block.W, block.H);
                 }
             }
+
+            if(isLeftClick==1)
+            { 
+                
+                g.DrawImage(Groups[1].Animations[2].imgs[iframe% Groups[1].Animations[2].imgs.Count], ex, ey, 60 +zoom, 60 + zoom);
+            }
         }
 
         void ImagesReady() //this function to add the photos in the memory
         {
-            Group pnn = new Group();  // 1- hero Right 2- hero Left
+            Group pnn = new Group();  // [0]     1- hero Right 2- hero Left
             pnn.groupName = "Hero";
             Groups.Add(pnn);
 
             pnn = new Group();
-            pnn.groupName = "Blocks";
+            pnn.groupName = "Blocks";  // [1] 1-staticBlocks 2-BorderBoxes 3-BreakBlock
             Groups.Add(pnn);
 
             pnn = new Group();
@@ -395,18 +418,30 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
             Groups[0].Animations.Add(heroLeft);
 
-            Animation blocks = new Animation();
-            blocks.imgs.Add(new Bitmap("Images/Blocks/grass.png")); // Adding Grass image
-            blocks.imgs.Add(new Bitmap("Images/Blocks/Dirt.png"));
-            blocks.imgs.Add(new Bitmap("Images/Blocks/stone.png")); // Adding Stone image
-            blocks.imgs.Add(new Bitmap("Images/Blocks/Coal.png"));
-            blocks.imgs.Add(new Bitmap("Images/Blocks/Diamond.png"));
-            blocks.imgs.Add(new Bitmap("Images/Blocks/Emerald.png"));
-            blocks.imgs.Add(new Bitmap("Images/Blocks/Gold.png"));
-            blocks.imgs.Add(new Bitmap("Images/Blocks/Ruby.png"));
-            blocks.imgs.Add(new Bitmap("Images/Blocks/Sapphire.png"));
-            blocks.imgs.Add(new Bitmap("Images/Blocks/Silver.png"));
-            Groups[1].Animations.Add(blocks);
+            Animation staticBlocks = new Animation();
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/grass.png")); // Adding Grass image
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Dirt.png"));
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/stone.png")); // Adding Stone image
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Coal.png"));
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Diamond.png"));
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Emerald.png"));
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Gold.png"));
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Ruby.png"));
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Sapphire.png"));
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Silver.png"));
+            Groups[1].Animations.Add(staticBlocks);
+
+            Animation blockBorders = new Animation();
+            blockBorders.imgs.Add(new Bitmap("Images/Blocks/grass.png")); // Adding Grass image
+            Groups[1].Animations.Add(staticBlocks);
+
+            Animation blockBreaking= new Animation();
+            for (int i = 1; i < 6; i++)
+            {
+                blockBreaking.imgs.Add(new Bitmap("Images/breaking/breaking" + i + ".png"));
+            }
+         
+            Groups[1].Animations.Add(blockBreaking);
         }
 
         void Zoom(int type)
