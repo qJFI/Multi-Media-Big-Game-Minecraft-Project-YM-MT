@@ -138,49 +138,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         }
     }
 
-    public class Tree
-    {
-        public List<Block> WoodBlocks;
-        public List<Block> TreeGrassBlocks;
-
-        public Tree(int baseX, int baseY, Bitmap woodImage, Bitmap treeGrassImage)
-        {
-            WoodBlocks = new List<Block>();
-            TreeGrassBlocks = new List<Block>();
-
-            // tree of height 5 blocks
-            for (int i = 0; i < 5; i++)
-            {
-                Block woodBlock = new Block
-                {
-                    X = baseX,
-                    Y = baseY - (i * 60),
-                    W = 60,
-                    H = 60,
-                    Img = woodImage
-                };
-                WoodBlocks.Add(woodBlock);
-            }
-
-
-            int treeGrassTopY = baseY - (5 * 60) - 3 * 60;
-            for (int i = 0; i < 3; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    Block treeGrassBlock = new Block
-                    {
-                        X = baseX - 60 + j * 60,
-                        Y = treeGrassTopY + i * 60 + 60,
-                        W = 60,
-                        H = 60,
-                        Img = treeGrassImage
-                    };
-                    TreeGrassBlocks.Add(treeGrassBlock);
-                }
-            }
-        }
-    }
+    
 
 
     public class Camera
@@ -223,7 +181,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         AnimatedBlock breaking = null;
         BasicActor Sun;
         List<BasicActor> SingleActors = new List<BasicActor>();
-        List<Tree> trees = new List<Tree>();
+ 
         int iframe = 0;
         int breakingI = -1, breakingJ = -1;
         int zoom = -10;
@@ -238,7 +196,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         int ex = -1;
         int ey = -1;
         List<List<Block>> blocks2D = new List<List<Block>>(); // 2D list for blocks
-        List<List<Tree>> Trees2D = new List<List<Tree>>();
+   
         Random RR = new Random();
         Camera camera;
 
@@ -346,7 +304,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             int yCurr = ClientSize.Height - 60 * 10 + 400;
             int treeCount = 3; // Number of trees to create
             Bitmap woodImage = Groups[1].Animations[0].imgs[2]; // Wood image from staticBlocks
-            Bitmap treeGrassImage = Groups[1].Animations[0].imgs[3]; // Tree grass image from staticBlocks
+            Bitmap treeGrassImage = Groups[1].Animations[0].imgs[3]; // Tree grass image from staticBlocks  
             List<int> existingTreePositions = new List<int>();
 
             for (int i = 0; i < treeCount; i++)
@@ -361,10 +319,55 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
                 int y = yCurr - woodImage.Height + 100;
 
-                Tree tree = new Tree(x, y, woodImage, treeGrassImage);
-                trees.Add(tree);
+                makeRandomTrees(x, y, woodImage, treeGrassImage);
+
+                
             }
         }
+
+        void makeRandomTrees(int baseX, int baseY, Bitmap woodImage, Bitmap treeGrassImage)
+        {
+         List<Block> TreesBlocks;
+        
+
+        
+            TreesBlocks = new List<Block>();
+          
+            blocks2D.Add(TreesBlocks); //->20
+         
+            // tree of height 5 blocks
+            for (int i = 0; i < 5; i++)
+            {
+                Block woodBlock = new Block
+                {
+                    X = baseX,
+                    Y = baseY - (i * 60),
+                    W = 60,
+                    H = 60,
+                    Img = woodImage
+                };
+                blocks2D[20].Add(woodBlock);
+            }
+
+
+            int treeGrassTopY = baseY - (5 * 60) - 3 * 60;
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    Block treeGrassBlock = new Block
+                    {
+                        X = baseX - 60 + j * 60,
+                        Y = treeGrassTopY + i * 60 + 60,
+                        W = 60,
+                        H = 60,
+                        Img = treeGrassImage
+                    };
+                    blocks2D[20].Add(treeGrassBlock);
+                }
+            }
+        
+    }
 
         bool CheckOverlap(List<int> existingPositions, int newX)
         {
@@ -539,7 +542,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         {
             isBreaking = 0;
             breaking = null;
-            isBreaking = 0;
+          
         }
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
@@ -587,36 +590,17 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                 }
                                 else if (block.Img == Groups[1].Animations[0].imgs[5]) // Coal block
                                 {
+                                    // Add stone block item to hero's inventory
                                     hero.Inventory.Add(new InventoryItem(3, 1));
                                 }
-                                else if (block.Img == Groups[1].Animations[0].imgs[6]) // Diamond block
-                                {
-                                    hero.Inventory.Add(new InventoryItem(4, 1));
-                                }
-                                else if (block.Img == Groups[1].Animations[0].imgs[7]) // Emerald block
-                                {
-                                    hero.Inventory.Add(new InventoryItem(5, 1));
-                                }
-                                else if (block.Img == Groups[1].Animations[0].imgs[8]) // Gold block
-                                {
-                                    hero.Inventory.Add(new InventoryItem(6, 1));
-                                }
-                                else if (block.Img == Groups[1].Animations[0].imgs[9]) // Ruby block
-                                {
-                                    hero.Inventory.Add(new InventoryItem(7, 1));
-                                }
-                                else if (block.Img == Groups[1].Animations[0].imgs[10]) // Sapphire block
-                                {
-                                    hero.Inventory.Add(new InventoryItem(8, 1));
-                                }
-                                else if (block.Img == Groups[1].Animations[0].imgs[11]) // Silver block
-                                {
-                                    hero.Inventory.Add(new InventoryItem(9, 1));
-                                }
                                 break;
+
                             }
                         }
                     }
+
+
+                 
 
                     break;
                 case MouseButtons.Right:
@@ -676,24 +660,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     g.DrawImage(block.Img, block.X - viewRect.X, block.Y - viewRect.Y, block.W, block.H);
                 }
             }
-
-            for (int i = 0; i < trees.Count; i++)
-            {
-                Tree tree = trees[i];
-
-                for (int j = 0; j < tree.WoodBlocks.Count; j++)
-                {
-                    Block woodBlock = tree.WoodBlocks[j];
-                    g.DrawImage(woodBlock.Img, woodBlock.X - viewRect.X, woodBlock.Y - viewRect.Y, woodBlock.W, woodBlock.H);
-                }
-
-                for (int j = 0; j < tree.TreeGrassBlocks.Count; j++)
-                {
-                    Block treeGrassBlock = tree.TreeGrassBlocks[j];
-                    g.DrawImage(treeGrassBlock.Img, treeGrassBlock.X - viewRect.X, treeGrassBlock.Y - viewRect.Y, treeGrassBlock.W, treeGrassBlock.H);
-                }
-            }
-
+/*
+         
+*/
             if (breaking != null)
             {
                 g.DrawImage(breaking.imgs[breaking.iframe % breaking.imgs.Count], breaking.X - viewRect.X, breaking.Y - viewRect.Y, breaking.W, breaking.H);
@@ -756,7 +725,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Gold.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Ruby.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Sapphire.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Silver.png"));
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Silver.png"));// Last Block image  (11)
             Groups[1].Animations.Add(staticBlocks);
 
             Animation blockBorders = new Animation();
