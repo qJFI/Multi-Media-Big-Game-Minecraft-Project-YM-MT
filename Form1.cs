@@ -30,6 +30,13 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public Bitmap Img;
     }
 
+    public class AnimatedBlock
+    {
+        public int X, Y, W, H;
+        public List<Bitmap> imgs = new List<Bitmap>();
+        public int iframe = 0;
+    }
+
     public class Hero
     {
         public int X, Y, W, H;
@@ -39,7 +46,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int dir = 1; //right -1 left
         public int speed = 10;
         public bool isJumping = false;
-        public int jumpSpeed = 15;
+        public int jumpPower = 30;
         public int force = 0;
     }
 
@@ -51,9 +58,11 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         Bitmap HeroImg = new Bitmap("Images/hero1.png");
         Rectangle rctSrc, rctDst;
         Hero hero;
+        AnimatedBlock breaking = null;
         BasicActor Sun;
         List<BasicActor> SingleActors = new List<BasicActor>();
         int iframe = 0;
+        int breakingI=-1, breakingJ=-1;
         int zoom = -10;
         int isLeftClick = 0;
         int zoomRange = 10;
@@ -110,6 +119,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             // Create random biome blocks
             CreateRandomBiomeBlocks();
         }
+
+
 
         void CreateRandomBiomeBlocks()
         {
@@ -186,12 +197,12 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             // Gravity and jump logic
             if (hero.isJumping)
             {
-                hero.Y -= hero.jumpSpeed;
-                hero.jumpSpeed -= 1;
-                if (hero.jumpSpeed < 0)
+                hero.Y -= hero.jumpPower;
+                hero.jumpPower -= 1;
+                if (hero.jumpPower < 0)
                 {
                     hero.isJumping = false;
-                    hero.jumpSpeed = 15;
+                    hero.jumpPower = 15;
                 }
             }
             else
@@ -202,11 +213,19 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
-            if(isLeftClick==1)
+            if(breaking!= null)
             {
-                if(ctTimer%10==0)
+                if(ctTimer%10==0 && breaking.iframe<4)
                 {
-                    iframe++;
+                    breaking.iframe++;
+                }
+                else if(breaking.iframe >= 4) 
+                {
+                    Text = "test";
+                    blocks2D[breakingI].RemoveAt(breakingJ);
+
+                    breaking = null;
+                     
                 }
             }
 
@@ -311,7 +330,32 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             switch (e.Button)
             {
                 case MouseButtons.Left:
-                    isLeftClick = 1;
+
+                    for (int i = 0; i < blocks2D.Count; i++)
+                    {
+                        List<Block> row = blocks2D[i];
+                        for (int j = 0; j < row.Count; j++)
+                        {
+                            Block block = row[j];
+                            if (e.X < block.X + block.W &&
+                                e.X  > block.X &&
+                                e.Y <= block.Y + block.H &&
+                                e.Y  >= block.Y) // Adjust 10 as per the gravity
+                            {
+                                isLeftClick = 1;
+                                breakingI = i;
+                                breakingJ = j;
+                                breaking = new AnimatedBlock();
+                                breaking.X = block.X;
+                                breaking.Y = block.Y;
+                                breaking.W = block.W;
+                                breaking.H = block.H;
+                                breaking.imgs = Groups[1].Animations[2].imgs;
+                            }
+                        }
+                    }
+                    
+                  
                     break;
                 case MouseButtons.Right:
                     // Right mouse button logic
@@ -371,10 +415,10 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
-            if(isLeftClick==1)
-            { 
-                
-                g.DrawImage(Groups[1].Animations[2].imgs[iframe% Groups[1].Animations[2].imgs.Count], ex, ey, 60 +zoom, 60 + zoom);
+            if(breaking!= null)
+            {
+                                                                                //will be breaking.X breaking.Y breaking.W breaking.H 
+                g.DrawImage(breaking.imgs[breaking.iframe% breaking.imgs.Count], breaking.X, breaking.Y, breaking.W, breaking.H);
             }
         }
 
