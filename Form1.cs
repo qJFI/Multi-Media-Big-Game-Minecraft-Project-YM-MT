@@ -469,7 +469,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 g.DrawImage(BasicActorTrav.imgs[BasicActorTrav.iframe % BasicActorTrav.imgs.Count], BasicActorTrav.X , BasicActorTrav.Y , BasicActorTrav.W, BasicActorTrav.H);
             }
 
-            g.DrawImage(hero.imgs[hero.iframe % hero.imgs.Count], hero.X - viewRect.X, hero.Y - viewRect.Y, hero.W, hero.H);
+            g.DrawImage(hero.imgs[hero.iframe/5 % hero.imgs.Count], hero.X - viewRect.X, hero.Y - viewRect.Y, hero.W, hero.H);
 
             for (int j = 0; j < blocks2D.Count; j++)
             {
@@ -534,16 +534,16 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Groups[0].Animations.Add(heroLeft);
 
             Animation staticBlocks = new Animation();
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/grass.png")); // Adding Grass image
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Dirt.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/stone.png")); // Adding Stone image
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Coal.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Diamond.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Emerald.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Gold.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Ruby.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Sapphire.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Silver.png"));
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/grass.png")); // Adding Grass image 0
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Dirt.png"));  //1
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/stone.png")); // Adding Stone image 2
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Coal.png")); //3
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Diamond.png")); //4
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Emerald.png")); //5
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Gold.png")); //6
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Ruby.png")); //7
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Sapphire.png")); //8
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Silver.png")); //9
             Groups[1].Animations.Add(staticBlocks);
 
             Animation blockBorders = new Animation();
