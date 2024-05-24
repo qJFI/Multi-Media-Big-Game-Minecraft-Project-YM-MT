@@ -268,8 +268,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 for (int j = 0; j < row.Count; j++)
                 {
                     Block block = row[j];
-                    if (hero.X < block.X + block.W &&
-                        hero.X + hero.W > block.X &&
+                    if (hero.X < block.X + block.W -40&&
+                        hero.X + hero.W -40> block.X &&
                         hero.Y + hero.H <= block.Y + block.H &&
                         hero.Y + hero.H + 10 >= block.Y) // Adjust 10 as per the gravity
                     {
