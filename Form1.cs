@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Multi_Media_Minecraft_Project_YM_MT
@@ -42,6 +38,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int isHeroStable = 0;
         public int dir = 1; //right -1 left
         public int speed = 10;
+        public bool isJumping = false;
+        public int jumpSpeed = 15;
+        public int force = 0;
     }
 
     public partial class Form1 : Form
@@ -117,7 +116,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             int blockHeight = 60; // Set your block height
             int columns = ClientSize.Width / blockWidth;
             int rows = 10; // Number of rows of blocks
-            int yPos = ClientSize.Height - blockHeight * rows +400; // Starting Y position of the bottom row
+            int yPos = ClientSize.Height - blockHeight * rows + 400; // Starting Y position of the bottom row
 
             for (int j = 0; j < rows; j++)
             {
@@ -134,24 +133,23 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     {
                         blockPnn.Img = Groups[1].Animations[0].imgs[0]; // Always grass for the first 5 rows from the bottom
                     }
-                    else if (j<2)
+                    else if (j < 2)
                     {
                         blockPnn.Img = Groups[1].Animations[0].imgs[1];
                     }
                     else
                     {
-                        int isStone = RR.Next(0, 4);
+                        int isStone = RR.Next(0, 2);
 
-                        if (isStone == 0) { 
-                            int randomBlock = RR.Next(2,Groups[1].Animations[0].imgs.Count);
+                        if (isStone == 0)
+                        {
+                            int randomBlock = RR.Next(2, Groups[1].Animations[0].imgs.Count);
                             blockPnn.Img = Groups[1].Animations[0].imgs[randomBlock];
                         }
                         else
                         {
                             blockPnn.Img = Groups[1].Animations[0].imgs[2];
                         }
-                            
-                        
                     }
 
                     rowBlocks.Add(blockPnn);
@@ -160,7 +158,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
 
             // Adjust hero position to be on top of the grass blocks
-            hero.Y = yPos - hero.H + 10 ;
+            hero.Y = yPos - hero.H + 10;
         }
 
         private void T_Tick(object sender, EventArgs e)
@@ -181,6 +179,25 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 {
                     Sun.X -= 3 * Sun.Vars[2];
                     Sun.Y += Sun.Vars[2];
+                }
+            }
+
+            // Gravity and jump logic
+            if (hero.isJumping)
+            {
+                hero.Y -= hero.jumpSpeed;
+                hero.jumpSpeed -= 1;
+                if (hero.jumpSpeed < 0)
+                {
+                    hero.isJumping = false;
+                    hero.jumpSpeed = 15;
+                }
+            }
+            else
+            {
+                if (!IsOnGround())
+                {
+                    hero.Y += 10; // gravity
                 }
             }
 
@@ -211,11 +228,31 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             DrawDouble(CreateGraphics());
         }
 
+        private bool IsOnGround()
+        {
+            foreach (var row in blocks2D)
+            {
+                foreach (var block in row)
+                {
+                    if (hero.X < block.X + block.W &&
+                        hero.X + hero.W > block.X &&
+                        hero.Y + hero.H <= block.Y +block.H &&
+                        hero.Y + hero.H + 10 >= block.Y) // Adjust 10 as per the gravity
+                    {
+                        hero.Y = block.Y - hero.H; // Adjust hero's position to stand on the block
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
                 case Keys.D:
+                case Keys.Right:
                     hero.isHeroStable = 10;
                     hero.X += hero.speed;
                     hero.iframe++;
@@ -223,6 +260,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     hero.dir = 1;
                     break;
                 case Keys.A:
+                case Keys.Left:
                     hero.X -= hero.speed;
                     hero.isHeroStable = 10;
                     hero.iframe++;
@@ -230,10 +268,15 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     hero.dir = -1;
                     break;
                 case Keys.W:
-                    //hero.Y -=  hero.speed; //shouldn't work
+                case Keys.Up:
+                    if (IsOnGround() && !hero.isJumping)
+                    {
+                        hero.isJumping = true;
+                    }
                     break;
                 case Keys.S:
-                    //hero.Y +=  hero.speed;//shouldn't work
+                case Keys.Down:
+                    // hero crouch logic if needed
                     break;
                 case Keys.Z:
                     Zoom(1);
@@ -310,7 +353,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
         }
 
-
         void ImagesReady() //this function to add the photos in the memory
         {
             Group pnn = new Group();  // 1- hero Right 2- hero Left
@@ -364,7 +406,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             blocks.imgs.Add(new Bitmap("Images/Blocks/Silver.png"));
             Groups[1].Animations.Add(blocks);
         }
-
 
         void Zoom(int type)
         {
