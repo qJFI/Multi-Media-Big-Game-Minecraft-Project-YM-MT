@@ -222,6 +222,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     Sun.X -= 3 * Sun.Vars[2];
                     Sun.Y += Sun.Vars[2];
                 }
+             
             }
 
             // Gravity and jump logic
@@ -279,6 +280,13 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 Sun.Vars[1] = 1;
             if (Sun.X >= ClientSize.Width + 100)
                 Sun.Vars[1] = 2; //finish
+            if (Sun.X + Sun.W <= 0)
+            {
+                Sun.Vars[1] = 0; //finish
+                Sun.X = ClientSize.Width + 100;
+                Sun.Y = 300;
+          
+            }
 
             ctTimer++;
             camera.Update(hero); // Update camera position based on hero's position
@@ -458,7 +466,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             for (int i = 0; i < SingleActors.Count; i++)
             {
                 BasicActor BasicActorTrav = SingleActors[i];
-                g.DrawImage(BasicActorTrav.imgs[BasicActorTrav.iframe % BasicActorTrav.imgs.Count], BasicActorTrav.X - viewRect.X, BasicActorTrav.Y - viewRect.Y, BasicActorTrav.W, BasicActorTrav.H);
+                g.DrawImage(BasicActorTrav.imgs[BasicActorTrav.iframe % BasicActorTrav.imgs.Count], BasicActorTrav.X , BasicActorTrav.Y , BasicActorTrav.W, BasicActorTrav.H);
             }
 
             g.DrawImage(hero.imgs[hero.iframe % hero.imgs.Count], hero.X - viewRect.X, hero.Y - viewRect.Y, hero.W, hero.H);
