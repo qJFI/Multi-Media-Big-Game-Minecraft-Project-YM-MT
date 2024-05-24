@@ -230,13 +230,15 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
         private bool IsOnGround()
         {
-            foreach (var row in blocks2D)
+            for (int i = 0; i < blocks2D.Count; i++)
             {
-                foreach (var block in row)
+                List<Block> row = blocks2D[i];
+                for (int j = 0; j < row.Count; j++)
                 {
+                    Block block = row[j];
                     if (hero.X < block.X + block.W &&
                         hero.X + hero.W > block.X &&
-                        hero.Y + hero.H <= block.Y +block.H &&
+                        hero.Y + hero.H <= block.Y + block.H &&
                         hero.Y + hero.H + 10 >= block.Y) // Adjust 10 as per the gravity
                     {
                         hero.Y = block.Y - hero.H; // Adjust hero's position to stand on the block
@@ -424,8 +426,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         Block block = rowBlocks[i];
                         block.W += zoomRange;
                         block.H += zoomRange;
-                        block.Y -= zoomRange / 2; // Adjust Y position to account for zoom
-                        block.X -= zoomRange / 2; // Adjust X position to account for zoom
+                        block.Y += j*zoomRange ; // Adjust Y position to account for zoom
+                       /* block.X -= zoomRange / 2; // Adjust X position to account for zoom*/
+                        block.X = (i * block.W) - (zoomRange * i);
                     }
                 }
             }
@@ -433,6 +436,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             {
                 if (zoom > 0) // Ensure zoom doesn't go negative
                 {
+
                     zoom -= zoomRange;
                     hero.W -= zoomRange;
                     hero.H -= zoomRange;
@@ -446,8 +450,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                             Block block = rowBlocks[i];
                             block.W -= zoomRange;
                             block.H -= zoomRange;
-                            block.Y += zoomRange / 2; // Adjust Y position to account for zoom
-                            block.X += zoomRange / 2; // Adjust X position to account for zoom
+                            block.Y -= j * zoomRange; // Adjust Y position to account for zoom
+                            block.X = (i * block.W) - (zoomRange * i); // Adjust X position to account for zoom
                         }
                     }
                 }
