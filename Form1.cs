@@ -29,6 +29,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int X, Y, W, H;
         public Bitmap Img;
         public int ID; //made for the Zoom 
+        public int ItemType;
     }
 
     public class AnimatedBlock
@@ -49,12 +50,98 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public bool isJumping = false;
         public int jumpCt = 20;
         public int force = 0;
+
+        public List<InventoryItem> Inventory;
+
+        public Hero()
+        {
+            Inventory = new List<InventoryItem>();
+        }
+    }
+
+    public class InventoryItem
+    {
+        public int ItemID;
+        public int Quantity;
+
+        public InventoryItem(int itemID, int quantity)
+        {
+            ItemID = itemID;
+            Quantity = quantity;
+        }
+    }
+
+    public class Inventory
+    {
+        private List<InventoryItem> items;
+
+        public Inventory()
+        {
+            items = new List<InventoryItem>();
+        }
+
+        public void AddItem(int itemID, int quantity)
+        {
+            // if the item is already in the inventory
+            bool found = false;
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i].ItemID == itemID)
+                {
+                    items[i].Quantity += quantity;
+                    found = true;
+                    break;
+                }
+            }
+
+            // if the item doesnt exist add it to the inventory
+            if (!found)
+            {
+                items.Add(new InventoryItem(itemID, quantity));
+            }
+        }
+
+        public void RemoveItem(int itemID, int quantity)
+        {
+            // find item index
+            int index = -1;
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i].ItemID == itemID)
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            // if the item is in inventory decrease quantity
+            if (index != -1)
+            {
+                items[index].Quantity -= quantity;
+
+                // temove if it is not there
+                if (items[index].Quantity == 0)
+                {
+                    items.RemoveAt(index);
+                }
+            }
+        }
+
+        public List<InventoryItem> GetItems()
+        {
+            return items;
+        }
+
+        public void Clear()
+        {
+            items.Clear();
+        }
     }
 
     public class Tree
     {
-        public List<Block> WoodBlocks { get; private set; }
-        public List<Block> TreeGrassBlocks { get; private set; }
+        public List<Block> WoodBlocks;
+        public List<Block> TreeGrassBlocks;
 
         public Tree(int baseX, int baseY, Bitmap woodImage, Bitmap treeGrassImage)
         {
@@ -208,8 +295,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             int blockWidth = 60; // Set your block width
             int blockHeight = 60; // Set your block height
             int columns = ClientSize.Width / blockWidth;
-            int rows = 10; // Number of rows of blocks
-            int yPos = ClientSize.Height - blockHeight * rows + 400; // Starting Y position of the bottom row
+            int rows = 20; // Number of rows of blocks
+            int yPos = ClientSize.Height - blockHeight * rows + 1000; // Starting Y position of the bottom row
 
             for (int i = 0; i < rows; i++)
             {
@@ -487,10 +574,29 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                 breaking.H = block.H;
                                 breaking.imgs = Groups[1].Animations[2].imgs;
                                 breaking.iframe = 0; // Start breaking animation from the first frame
+
+
+                                // Handle item collection based on block type
+                                if (block.Img == Groups[1].Animations[0].imgs[0]) // Grass block
+                                {
+                                    hero.Inventory.Add(new InventoryItem(1, 1));
+                                }
+                                else if (block.Img == Groups[1].Animations[0].imgs[4]) // Stone block
+                                {
+                                    hero.Inventory.Add(new InventoryItem(2, 1));
+                                }
+                                else if (block.Img == Groups[1].Animations[0].imgs[5]) // Coal block
+                                {
+                                    // Add stone block item to hero's inventory
+                                    hero.Inventory.Add(new InventoryItem(3, 1));
+                                }
                                 break;
+
                             }
                         }
                     }
+
+
                     /* still work in progress logic of breaking tree blocks
                     for (int i = 0; i < Trees2D.Count; i++)
                     {
