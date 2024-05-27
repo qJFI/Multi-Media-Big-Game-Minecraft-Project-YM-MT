@@ -30,6 +30,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public Bitmap Img;
         public int ID; //made for the Zoom 
         public int ItemType;
+
     }
 
     public class AnimatedBlock
@@ -138,34 +139,36 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         }
     }
 
-
     public class Camera
+{
+    public int X, Y, Width, Height;
+    public float ZoomFactor { get; set; }
+
+    public Camera(int width, int height)
     {
-        public int X, Y, Width, Height;
-
-        public Camera(int width, int height)
-        {
-            Width = width;
-            Height = height;
-            X = 0;
-            Y = 0;
-        }
-
-        public void Update(Hero hero)
-        {
-            X = hero.X - Width / 2-800;
-            Y = hero.Y - Height / 2-400;
-
-            // Ensure the camera doesn't go out of bounds
-            if (X < 0) X = 0;
-            if (Y < 0) Y = 0;
-        }
-
-        public Rectangle GetViewRect()
-        {
-            return new Rectangle(X, Y, Width, Height);
-        }
+        Width = width;
+        Height = height;
+        X = 0;
+        Y = 0;
+        ZoomFactor = 1.0f;
     }
+
+    public void Update(Hero hero)
+    {
+        X = (int)(hero.X - (Width / (2 * ZoomFactor))-200);
+        Y = (int)(hero.Y - (Height / (2 * ZoomFactor))-200);
+
+        // Ensure the camera doesn't go out of bounds
+        if (X < 0) X = 0;
+        if (Y < 0) Y = 0;
+    }
+
+    public Rectangle GetViewRect()
+    {
+        return new Rectangle(X, Y, (int)(Width / ZoomFactor), (int)(Height / ZoomFactor));
+    }
+}
+
 
     public partial class Form1 : Form
     {
@@ -549,9 +552,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             {
                 case MouseButtons.Left:
                     Rectangle viewRect = camera.GetViewRect();
-                    int clickX = e.X + viewRect.X;
-                    int clickY = e.Y + viewRect.Y;
-
+                    int clickX = (int)((e.X / camera.ZoomFactor) + viewRect.X);
+                    int clickY = (int)((e.Y / camera.ZoomFactor) + viewRect.Y);
 
                     for (int i = 0; i < blocks2D.Count; i++)
                     {
@@ -559,10 +561,10 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         for (int j = 0; j < row.Count; j++)
                         {
                             Block block = row[j];
-                            if (e.X + viewRect.X < block.X + block.W &&
-                                e.X + viewRect.X > block.X &&
-                                e.Y + viewRect.Y <= block.Y + block.H &&
-                                e.Y + viewRect.Y >= block.Y) // Adjust 10 as per the gravity
+                            if (clickX < block.X + block.W &&
+                                clickX > block.X &&
+                                clickY <= block.Y + block.H &&
+                                clickY >= block.Y)
                             {
                                 Text = "works";
                                 isBreaking = 1;
@@ -576,7 +578,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                 breaking.imgs = Groups[1].Animations[2].imgs;
                                 breaking.iframe = 0; // Start breaking animation from the first frame
 
-
                                 // Handle item collection based on block type
                                 if (block.Img == Groups[1].Animations[0].imgs[0]) // Grass block
                                 {
@@ -588,23 +589,18 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                 }
                                 else if (block.Img == Groups[1].Animations[0].imgs[5]) // Coal block
                                 {
-                                    // Add stone block item to hero's inventory
                                     hero.Inventory.Add(new InventoryItem(3, 1));
                                 }
                                 break;
-
                             }
                         }
                     }
-
-
-                 
-
                     break;
+
                 case MouseButtons.Right:
                     // Right mouse button logic
                     break;
-                case MouseButtons.XButton1:  //The bonus button 1 ملهمش فايدة بس بكتشف
+                case MouseButtons.XButton1:  //The bonus button 1
                     Text = "Testo1";
                     break;
                 case MouseButtons.XButton2:  //The bonus button 2
@@ -615,6 +611,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     break;
             }
         }
+
 
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
@@ -629,10 +626,10 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     for (int j = 0; j < row.Count; j++)
                     {
                         Block block = row[j];
-                        if (e.X + viewRect.X < block.X + block.W &&
-                            e.X + viewRect.X > block.X &&
-                            e.Y + viewRect.Y <= block.Y + block.H &&
-                            e.Y + viewRect.Y >= block.Y) // Adjust 10 as per the gravity
+                        if ((e.X / camera.ZoomFactor) + viewRect.X < block.X + block.W &&
+                            (e.X / camera.ZoomFactor) + viewRect.X > block.X &&
+                            (e.Y / camera.ZoomFactor) + viewRect.Y <= block.Y + block.H &&
+                            (e.Y / camera.ZoomFactor) + viewRect.Y >= block.Y)
                         {
                             isBreaking = 0;
                             Text = "works";
@@ -651,6 +648,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
         }
+
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
@@ -674,10 +672,18 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             for (int i = 0; i < SingleActors.Count; i++)
             {
                 BasicActor BasicActorTrav = SingleActors[i];
-                g.DrawImage(BasicActorTrav.imgs[BasicActorTrav.iframe % BasicActorTrav.imgs.Count], BasicActorTrav.X , BasicActorTrav.Y , BasicActorTrav.W, BasicActorTrav.H);
+                g.DrawImage(BasicActorTrav.imgs[BasicActorTrav.iframe % BasicActorTrav.imgs.Count],
+                            (BasicActorTrav.X - viewRect.X) * camera.ZoomFactor,
+                            (BasicActorTrav.Y - viewRect.Y) * camera.ZoomFactor,
+                            BasicActorTrav.W * camera.ZoomFactor,
+                            BasicActorTrav.H * camera.ZoomFactor);
             }
 
-            g.DrawImage(hero.imgs[hero.iframe / 5 % hero.imgs.Count], hero.X - viewRect.X, hero.Y - viewRect.Y, hero.W, hero.H);
+            g.DrawImage(hero.imgs[hero.iframe / 5 % hero.imgs.Count],
+                        (hero.X - viewRect.X) * camera.ZoomFactor,
+                        (hero.Y - viewRect.Y) * camera.ZoomFactor,
+                        hero.W * camera.ZoomFactor,
+                        hero.H * camera.ZoomFactor);
 
             for (int j = 0; j < blocks2D.Count; j++)
             {
@@ -685,21 +691,37 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 for (int i = 0; i < rowBlocks.Count; i++)
                 {
                     Block block = rowBlocks[i];
-                    g.DrawImage(block.Img, block.X - viewRect.X, block.Y - viewRect.Y, block.W, block.H);
+                    g.DrawImage(block.Img,
+                                (block.X - viewRect.X) * camera.ZoomFactor,
+                                (block.Y - viewRect.Y) * camera.ZoomFactor,
+                                block.W * camera.ZoomFactor,
+                                block.H * camera.ZoomFactor);
                 }
             }
 
             if (isBreaking == 1)
             {
-                g.DrawImage(breaking.imgs[breaking.iframe % breaking.imgs.Count], breaking.X - viewRect.X, breaking.Y - viewRect.Y, breaking.W, breaking.H);
-                g.DrawImage(BorderImg, breaking.X - viewRect.X, breaking.Y - viewRect.Y, breaking.W, breaking.H);
+                g.DrawImage(breaking.imgs[breaking.iframe % breaking.imgs.Count],
+                            (breaking.X - viewRect.X) * camera.ZoomFactor,
+                            (breaking.Y - viewRect.Y) * camera.ZoomFactor,
+                            breaking.W * camera.ZoomFactor,
+                            breaking.H * camera.ZoomFactor);
+                g.DrawImage(BorderImg,
+                            (breaking.X - viewRect.X) * camera.ZoomFactor,
+                            (breaking.Y - viewRect.Y) * camera.ZoomFactor,
+                            breaking.W * camera.ZoomFactor,
+                            breaking.H * camera.ZoomFactor);
             }
             else if (breaking != null)
             {
-                g.DrawImage(BorderImg, breaking.X - viewRect.X, breaking.Y - viewRect.Y, breaking.W, breaking.H);
-
+                g.DrawImage(BorderImg,
+                            (breaking.X - viewRect.X) * camera.ZoomFactor,
+                            (breaking.Y - viewRect.Y) * camera.ZoomFactor,
+                            breaking.W * camera.ZoomFactor,
+                            breaking.H * camera.ZoomFactor);
             }
         }
+
 
         void ImagesReady() //this function to add the photos in the memory
         {
@@ -779,50 +801,20 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             isBreaking = 0;
             if (type == 1) // Zoom in
             {
-                zoom += zoomRange;
-                hero.W += zoomRange;
-                hero.H += zoomRange;
-                hero.Y -= zoomRange; // Adjust Y position to keep hero on top
-
-                for (int j = 0; j < blocks2D.Count; j++)
-                {
-                    List<Block> rowBlocks = blocks2D[j];
-                    for (int i = 0; i < rowBlocks.Count; i++)
-                    {
-                        Block block = rowBlocks[i];
-                        block.W += zoomRange;
-                        block.H += zoomRange;
-                        block.Y += j * zoomRange; // Adjust Y position to account for zoom
-                        block.X = (block.ID * block.W) - (zoomRange * block.ID) - zoom * 17 - zoom / 17; //hardcoded last 2
-                    }
-                }
+                camera.ZoomFactor += 0.1f;
             }
-            else if (type == 2)
+            else if (type == 2 && camera.ZoomFactor>1) // Zoom out
             {
-                if (zoom > 0) 
+                camera.ZoomFactor -= 0.1f;
+                if (camera.ZoomFactor < 0.1f) // Prevent zooming out too much
                 {
-                    zoom -= zoomRange;
-                    hero.W -= zoomRange;
-                    hero.H -= zoomRange;
-                    hero.Y += zoomRange;
-
-                    for (int j = 0; j < blocks2D.Count; j++)
-                    {
-                        List<Block> rowBlocks = blocks2D[j];
-                        for (int i = 0; i < rowBlocks.Count; i++)
-                        {
-                            Block block = rowBlocks[i];
-                            block.W -= zoomRange;
-                            block.H -= zoomRange;
-                            block.Y -= j * zoomRange;
-                            block.X = (block.ID * block.W) - (zoomRange * i) - zoom * 17 - zoom / 17;
-                        }
-                    }
+                    camera.ZoomFactor = 0.1f;
                 }
             }
+            camera.Update(hero);
 
-            DrawDouble(CreateGraphics()); // Redraw the scene after zooming
         }
+
 
         void DrawDouble(Graphics g)
         {
