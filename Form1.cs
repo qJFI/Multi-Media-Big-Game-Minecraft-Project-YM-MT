@@ -198,6 +198,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         Rectangle rctSrc, rctDst;
         Hero hero;
         AnimatedBlock breaking = null;
+        Bitmap breakedImg = null;
         BasicActor Sun;
         List<BasicActor> SingleActors = new List<BasicActor>();
  
@@ -429,6 +430,10 @@ namespace Multi_Media_Minecraft_Project_YM_MT
              
             }
 
+         
+                        
+                    
+
             // Gravity and jump logic
             if (hero.isJumping)
             {
@@ -456,7 +461,17 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
                 else if (breaking.iframe >= 5)
                 {
-                    isBroken = true;
+                   
+                   
+                   
+                   
+                        
+                        // Create a dropped item
+                        DroppedItem droppedItem = new DroppedItem(breaking.X + 15, breaking.Y + 30, 30, 30, breakedImg, 1);
+                        droppedItems.Add(droppedItem);
+                        isBroken = false;
+
+                    
                     blocks2D[breakingI].RemoveAt(breakingJ);
                     breaking = null;
                     isBreaking = 0;
@@ -589,6 +604,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                             {
                                 Text = "works";
                                 isBreaking = 1;
+                                breakedImg = block.Img;
                                 breakingI = i; //for removing the block
                                 breakingJ = j; //for removing the block 
                                 breaking = new AnimatedBlock();
@@ -613,78 +629,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                     hero.Inventory.Add(new InventoryItem(3, 1));
                                 }
 
-                                if (isBroken)
-                                {
-                                    Bitmap itemImage = null;
-                                    int itemType = 0;
-                                    if (block.Img == Groups[1].Animations[0].imgs[0]) // Grass block
-                                    {
-                                        itemImage = Groups[1].Animations[0].items[0];
-                                        itemType = 1;
-                                    }
-                                    else if (block.Img == Groups[1].Animations[0].imgs[1]) // Dirt block
-                                    {
-                                        itemImage = Groups[1].Animations[0].items[1];
-                                        itemType = 2;
-                                    }
-                                    else if (block.Img == Groups[1].Animations[0].imgs[2])
-                                    {
-                                        itemImage = Groups[1].Animations[0].items[2];
-                                        itemType = 3;
-                                    }
-                                    else if (block.Img == Groups[1].Animations[0].imgs[3])
-                                    {
-                                        itemImage = Groups[1].Animations[0].items[3];
-                                        itemType = 4;
-                                    }
-                                    else if (block.Img == Groups[1].Animations[0].imgs[4])
-                                    {
-                                        itemImage = Groups[1].Animations[0].items[4];
-                                        itemType = 5;
-                                    }
-                                    else if (block.Img == Groups[1].Animations[0].imgs[5])
-                                    {
-                                        itemImage = Groups[1].Animations[0].items[5];
-                                        itemType = 6;
-                                    }
-                                    else if (block.Img == Groups[1].Animations[0].imgs[6])
-                                    {
-                                        itemImage = Groups[1].Animations[0].items[6];
-                                        itemType = 7;
-                                    }
-                                    else if (block.Img == Groups[1].Animations[0].imgs[7])
-                                    {
-                                        itemImage = Groups[1].Animations[0].items[7];
-                                        itemType = 8;
-                                    }
-                                    else if (block.Img == Groups[1].Animations[0].imgs[8])
-                                    {
-                                        itemImage = Groups[1].Animations[0].items[8];
-                                        itemType = 9;
-                                    }
-                                    else if (block.Img == Groups[1].Animations[0].imgs[9])
-                                    {
-                                        itemImage = Groups[1].Animations[0].items[9];
-                                        itemType = 10;
-                                    }
-                                    else if (block.Img == Groups[1].Animations[0].imgs[10])
-                                    {
-                                        itemImage = Groups[1].Animations[0].items[10];
-                                        itemType = 11;
-                                    }
-                                    else if (block.Img == Groups[1].Animations[0].imgs[11])
-                                    {
-                                        itemImage = Groups[1].Animations[0].items[11];
-                                        itemType = 12;
-                                    }
-
-                                    if (itemImage != null)
-                                    {
-                                        // Create a dropped item
-                                        DroppedItem droppedItem = new DroppedItem(block.X + 15, block.Y + 30, 30, 30, itemImage, itemType);
-                                        droppedItems.Add(droppedItem);
-                                    }
-                                }
                                 break;
                             }
                         }
@@ -820,7 +764,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             for (int i = 0; i < droppedItems.Count; i++)
             {
                 DroppedItem droppedItem = droppedItems[i];
-                g.DrawImage(droppedItem.Img, droppedItem.X - viewRect.X, droppedItem.Y - viewRect.Y, droppedItem.W, droppedItem.H);
+                g.DrawImage(droppedItem.Img, (droppedItem.X - viewRect.X) * camera.ZoomFactor, (droppedItem.Y - viewRect.Y) * camera.ZoomFactor, droppedItem.W, droppedItem.H);
             }
 
         }
