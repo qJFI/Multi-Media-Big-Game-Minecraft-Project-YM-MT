@@ -52,7 +52,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int dir = 1; //right -1 left
         public int speed = 10;
         public bool isJumping = false;
-        public int jumpCt = 20;
+        public int jumpCt = 25;
         public int force = 0;
 
         public List<InventoryItem> Inventory;
@@ -471,18 +471,18 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             if (hero.isJumping)
             {
                 hero.Y -= hero.jumpCt;
-                hero.jumpCt -= 4;
+                hero.jumpCt -= 6;
                 if (hero.jumpCt < 0)
                 {
                     hero.isJumping = false;
-                    hero.jumpCt = 20;
+                    hero.jumpCt = 25;
                 }
             }
             else
             {
                 if (!IsOnGround())
                 {
-                    hero.Y += 10; // gravity
+                    hero.Y += 15; // gravity
                 }
             }
 
