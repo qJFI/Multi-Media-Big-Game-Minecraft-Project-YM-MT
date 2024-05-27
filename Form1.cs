@@ -16,6 +16,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
     class Animation
     {
         public List<Bitmap> imgs = new List<Bitmap>();
+        public List<Bitmap> items = new List<Bitmap>();
     }
 
     class Group // for example : Blocks 
@@ -36,6 +37,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
     {
         public int X, Y, W, H;
         public List<Bitmap> imgs = new List<Bitmap>();
+        
         public int iframe = 0;
     }
 
@@ -59,6 +61,22 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         }
     }
 
+    public class DroppedItem
+    {
+        public int X, Y, W, H;
+        public Bitmap Img;
+        public int ItemType;
+
+        public DroppedItem(int x, int y, int w, int h, Bitmap img, int itemType)
+        {
+            X = x;
+            Y = y;
+            W = w;
+            H = h;
+            Img = img;
+            ItemType = itemType;
+        }
+    }
     public class InventoryItem
     {
         public int ItemID;
@@ -194,7 +212,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         int ex = -1;
         int ey = -1;
         List<List<Block>> blocks2D = new List<List<Block>>(); // 2D list for blocks
-   
+        List<DroppedItem> droppedItems = new List<DroppedItem>();
+        bool isBroken = false;
+
         Random RR = new Random();
         Camera camera;
 
@@ -425,7 +445,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
-            if (breaking != null)
+            if (breaking != null && isBreaking == 1)
             {
                 if (ctTimer % 3 == 0 && breaking.iframe < 5)
                 {
@@ -433,6 +453,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
                 else if (breaking.iframe >= 5)
                 {
+                    isBroken = true;
                     blocks2D[breakingI].RemoveAt(breakingJ);
                     breaking = null;
                     isBreaking = 0;
@@ -591,14 +612,83 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                     // Add stone block item to hero's inventory
                                     hero.Inventory.Add(new InventoryItem(3, 1));
                                 }
-                                break;
 
+                                if (isBroken)
+                                {
+                                    Bitmap itemImage = null;
+                                    int itemType = 0;
+                                    if (block.Img == Groups[1].Animations[0].imgs[0]) // Grass block
+                                    {
+                                        itemImage = Groups[1].Animations[0].items[0];
+                                        itemType = 1;
+                                    }
+                                    else if (block.Img == Groups[1].Animations[0].imgs[1]) // Dirt block
+                                    {
+                                        itemImage = Groups[1].Animations[0].items[1];
+                                        itemType = 2;
+                                    }
+                                    else if (block.Img == Groups[1].Animations[0].imgs[2])
+                                    {
+                                        itemImage = Groups[1].Animations[0].items[2];
+                                        itemType = 3;
+                                    }
+                                    else if (block.Img == Groups[1].Animations[0].imgs[3])
+                                    {
+                                        itemImage = Groups[1].Animations[0].items[3];
+                                        itemType = 4;
+                                    }
+                                    else if (block.Img == Groups[1].Animations[0].imgs[4])
+                                    {
+                                        itemImage = Groups[1].Animations[0].items[4];
+                                        itemType = 5;
+                                    }
+                                    else if (block.Img == Groups[1].Animations[0].imgs[5])
+                                    {
+                                        itemImage = Groups[1].Animations[0].items[5];
+                                        itemType = 6;
+                                    }
+                                    else if (block.Img == Groups[1].Animations[0].imgs[6])
+                                    {
+                                        itemImage = Groups[1].Animations[0].items[6];
+                                        itemType = 7;
+                                    }
+                                    else if (block.Img == Groups[1].Animations[0].imgs[7])
+                                    {
+                                        itemImage = Groups[1].Animations[0].items[7];
+                                        itemType = 8;
+                                    }
+                                    else if (block.Img == Groups[1].Animations[0].imgs[8])
+                                    {
+                                        itemImage = Groups[1].Animations[0].items[8];
+                                        itemType = 9;
+                                    }
+                                    else if (block.Img == Groups[1].Animations[0].imgs[9])
+                                    {
+                                        itemImage = Groups[1].Animations[0].items[9];
+                                        itemType = 10;
+                                    }
+                                    else if (block.Img == Groups[1].Animations[0].imgs[10])
+                                    {
+                                        itemImage = Groups[1].Animations[0].items[10];
+                                        itemType = 11;
+                                    }
+                                    else if (block.Img == Groups[1].Animations[0].imgs[11])
+                                    {
+                                        itemImage = Groups[1].Animations[0].items[11];
+                                        itemType = 12;
+                                    }
+
+                                    if (itemImage != null)
+                                    {
+                                        // Create a dropped item
+                                        DroppedItem droppedItem = new DroppedItem(block.X + 15, block.Y + 30, 30, 30, itemImage, itemType);
+                                        droppedItems.Add(droppedItem);
+                                    }
+                                }
+                                break;
                             }
                         }
                     }
-
-
-                 
 
                     break;
                 case MouseButtons.Right:
@@ -699,6 +789,14 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 g.DrawImage(BorderImg, breaking.X - viewRect.X, breaking.Y - viewRect.Y, breaking.W, breaking.H);
 
             }
+
+            // Draw dropped items using a for loop without var
+            for (int i = 0; i < droppedItems.Count; i++)
+            {
+                DroppedItem droppedItem = droppedItems[i];
+                g.DrawImage(droppedItem.Img, droppedItem.X - viewRect.X, droppedItem.Y - viewRect.Y, droppedItem.W, droppedItem.H);
+            }
+
         }
 
         void ImagesReady() //this function to add the photos in the memory
@@ -746,18 +844,32 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Groups[0].Animations.Add(heroLeft);
 
             Animation staticBlocks = new Animation();
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/grass.png")); // Adding Grass image
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/grass.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Dirt.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Oak.png")); // Adding Grass image
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Oak.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/grassleaves.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/stone.png")); // Adding Stone image
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/stone.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Coal.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Diamond.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Emerald.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Gold.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Ruby.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Sapphire.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Silver.png"));// Last Block image  (11)
+            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Iron.png")); // Last Block image  (11)
+            staticBlocks.items.Add(new Bitmap("Images/items/grassitem.png"));
+            staticBlocks.items.Add(new Bitmap("Images/items/Dirtitem.png"));
+            staticBlocks.items.Add(new Bitmap("Images/items/oakitem.png"));
+            staticBlocks.items.Add(new Bitmap("Images/items/grassleavesitem.png"));
+            staticBlocks.items.Add(new Bitmap("Images/items/stoneitem.png"));
+            staticBlocks.items.Add(new Bitmap("Images/items/Coalitem.png"));
+            staticBlocks.items.Add(new Bitmap("Images/items/Diamonditem.png"));
+            staticBlocks.items.Add(new Bitmap("Images/items/Emeralditem.png"));
+            staticBlocks.items.Add(new Bitmap("Images/items/Golditem.png"));
+            staticBlocks.items.Add(new Bitmap("Images/items/Rubyitem.png"));
+            staticBlocks.items.Add(new Bitmap("Images/items/Sapphireitem.png"));
+            staticBlocks.items.Add(new Bitmap("Images/items/Ironitem.png")); // Last item image  (11)
+
+
             Groups[1].Animations.Add(staticBlocks);
 
             Animation blockBorders = new Animation();
