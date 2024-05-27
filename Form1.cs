@@ -45,6 +45,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
     public class Hero
     {
         public int X, Y, W, H;
+        public int HeroHitBox = 200;
         public List<Bitmap> imgs;
         public int iframe = 0;
         public int isHeroStable = 0;
@@ -630,40 +631,48 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         {
                             Block block = row[j];
 
+                            //check Range ->
+                            if (block.X < hero.X + hero.HeroHitBox &&
+                                block.X >= hero.X - hero.HeroHitBox &&
+                                block.Y < hero.Y + hero.HeroHitBox &&
+                                 block.Y >= hero.Y - hero.HeroHitBox
+                                ) {
 
-                            if (clickX < block.X + block.W &&
-                                clickX > block.X &&
-                                clickY <= block.Y + block.H &&
-                                clickY >= block.Y)
-                            {
-                                Text = "works";
-                                isBreaking = 1;
-                                breakedImg = block.Img;
-                                breakingI = i; //for removing the block
-                                breakingJ = j; //for removing the block 
-                                breaking = new AnimatedBlock();
-                                breaking.X = block.X;
-                                breaking.Y = block.Y;
-                                breaking.W = block.W;
-                                breaking.H = block.H;
-                                breaking.imgs = Groups[1].Animations[2].imgs;
-                                breaking.iframe = 0; // Start breaking animation from the first frame
+                                //check click ->
+                                if (clickX < block.X + block.W &&
+                                    clickX > block.X &&
+                                    clickY <= block.Y + block.H &&
+                                    clickY >= block.Y)
+                                {
+                                    Text = "works";
+                                    isBreaking = 1;
+                                    breakedImg = block.Img;
+                                    breakingI = i; //for removing the block
+                                    breakingJ = j; //for removing the block 
+                                    breaking = new AnimatedBlock();
+                                    breaking.X = block.X;
+                                    breaking.Y = block.Y;
+                                    breaking.W = block.W;
+                                    breaking.H = block.H;
+                                    breaking.imgs = Groups[1].Animations[2].imgs;
+                                    breaking.iframe = 0; // Start breaking animation from the first frame
 
-                                // Handle item collection based on block type
-                                if (block.Img == Groups[1].Animations[0].imgs[0]) // Grass block
-                                {
-                                    hero.Inventory.Add(new InventoryItem(1, 1));
-                                }
-                                else if (block.Img == Groups[1].Animations[0].imgs[4]) // Stone block
-                                {
-                                    hero.Inventory.Add(new InventoryItem(2, 1));
-                                }
-                                else if (block.Img == Groups[1].Animations[0].imgs[5]) // Coal block
-                                {
-                                    hero.Inventory.Add(new InventoryItem(3, 1));
-                                }
+                                    // Handle item collection based on block type
+                                    if (block.Img == Groups[1].Animations[0].imgs[0]) // Grass block
+                                    {
+                                        hero.Inventory.Add(new InventoryItem(1, 1));
+                                    }
+                                    else if (block.Img == Groups[1].Animations[0].imgs[4]) // Stone block
+                                    {
+                                        hero.Inventory.Add(new InventoryItem(2, 1));
+                                    }
+                                    else if (block.Img == Groups[1].Animations[0].imgs[5]) // Coal block
+                                    {
+                                        hero.Inventory.Add(new InventoryItem(3, 1));
+                                    }
 
-                                break;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -885,14 +894,12 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             if (type == 1) // Zoom in
             {
                 camera.ZoomFactor += 0.1f;
+                hero.HeroHitBox ++;
             }
             else if (type == 2 && camera.ZoomFactor>1) // Zoom out
             {
                 camera.ZoomFactor -= 0.1f;
-                if (camera.ZoomFactor < 0.1f) // Prevent zooming out too much
-                {
-                    camera.ZoomFactor = 0.1f;
-                }
+                hero.HeroHitBox --;
             }
             camera.Update(hero);
 
