@@ -193,6 +193,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
     {
         Bitmap off;
         Bitmap BackImg = new Bitmap("Images/Back.png");
+        Bitmap BlueBackImg = new Bitmap("Images/blue.png");
+        Bitmap BackBiomeImg = new Bitmap("Images/biomeBackgrounds/birchForest.png");
         Bitmap BorderImg = new Bitmap("Images/Border.png");
         Bitmap SunImg = new Bitmap("Images/sun.png");
         Bitmap HeroImg = new Bitmap("Images/hero1.png");
@@ -241,7 +243,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         void CreateSome()
         {
             // Sky
-            rctSrc = new Rectangle(stX, stY, BackImg.Width / 2, BackImg.Height);
+            rctSrc = new Rectangle(stX, stY, BackImg.Width / 10, BackImg.Height);
             rctDst = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
 
             // Sun
@@ -747,8 +749,10 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         void DrawScene(Graphics g)
         {
             g.Clear(Color.White);
+            g.DrawImage(BlueBackImg, 0, 0, ClientSize.Width, ClientSize.Height);
+           
+            g.DrawImage(BackBiomeImg, 0, 0, ClientSize.Width, ClientSize.Height);
             g.DrawImage(BackImg, rctDst, rctSrc, GraphicsUnit.Pixel);
-
             Rectangle viewRect = camera.GetViewRect();
 
             for (int i = 0; i < SingleActors.Count; i++)
