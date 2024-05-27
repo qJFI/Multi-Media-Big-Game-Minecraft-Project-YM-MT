@@ -406,7 +406,30 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             return false;
         }
 
+        bool IsDroppedOnGround(DroppedItem droppedItemsTrav)
+        {
 
+            for (int i = 0; i < blocks2D.Count; i++)
+            {
+                List<Block> row = blocks2D[i];
+                for (int j = 0; j < row.Count; j++)
+                {
+                    Block block = row[j];
+
+                    if (droppedItemsTrav.X < block.X + block.W  &&
+                        droppedItemsTrav.X + droppedItemsTrav.W  > block.X &&
+                        droppedItemsTrav.Y + droppedItemsTrav.H <= block.Y + block.H +4&&
+                        droppedItemsTrav.Y + droppedItemsTrav.H  >= block.Y) // Adjust 10 as per the gravity
+                    {
+                        droppedItemsTrav.Y = block.Y - droppedItemsTrav.H; // Adjust hero's position to stand on the block
+                        return true;
+                    }
+                }
+            }
+            return false;
+
+            
+        }
 
         private void T_Tick(object sender, EventArgs e)
         {
@@ -431,6 +454,15 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
 
          
+                for(int i = 0;i<droppedItems.Count;i++)
+                {
+                    DroppedItem droppedItemsTrav = droppedItems[i];
+                    if (!IsDroppedOnGround(droppedItemsTrav))
+                    {
+                        droppedItemsTrav.Y+=5;
+                    }
+                }
+            
                         
                     
 
@@ -467,7 +499,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                    
                         
                         // Create a dropped item
-                        DroppedItem droppedItem = new DroppedItem(breaking.X + 15, breaking.Y + 30, 30, 30, breakedImg, 1);
+                        DroppedItem droppedItem = new DroppedItem(breaking.X + 15, breaking.Y + 30, 22, 22, breakedImg, 1);
                         droppedItems.Add(droppedItem);
                         isBroken = false;
 
@@ -597,6 +629,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         for (int j = 0; j < row.Count; j++)
                         {
                             Block block = row[j];
+
+
                             if (clickX < block.X + block.W &&
                                 clickX > block.X &&
                                 clickY <= block.Y + block.H &&
@@ -826,18 +860,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Ruby.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Sapphire.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Iron.png")); // Last Block image  (11)
-            staticBlocks.items.Add(new Bitmap("Images/items/grassitem.png"));
-            staticBlocks.items.Add(new Bitmap("Images/items/Dirtitem.png"));
-            staticBlocks.items.Add(new Bitmap("Images/items/oakitem.png"));
-            staticBlocks.items.Add(new Bitmap("Images/items/grassleavesitem.png"));
-            staticBlocks.items.Add(new Bitmap("Images/items/stoneitem.png"));
-            staticBlocks.items.Add(new Bitmap("Images/items/Coalitem.png"));
-            staticBlocks.items.Add(new Bitmap("Images/items/Diamonditem.png"));
-            staticBlocks.items.Add(new Bitmap("Images/items/Emeralditem.png"));
-            staticBlocks.items.Add(new Bitmap("Images/items/Golditem.png"));
-            staticBlocks.items.Add(new Bitmap("Images/items/Rubyitem.png"));
-            staticBlocks.items.Add(new Bitmap("Images/items/Sapphireitem.png"));
-            staticBlocks.items.Add(new Bitmap("Images/items/Ironitem.png")); // Last item image  (11)
+            
 
 
             Groups[1].Animations.Add(staticBlocks);
