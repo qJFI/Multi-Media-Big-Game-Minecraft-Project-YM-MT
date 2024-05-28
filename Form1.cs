@@ -358,6 +358,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 int x;
                 do
                 {
+
                     x = RR.Next(0, ClientSize.Width - 60);
                 } while (CheckOverlap(existingTreePositions, x));
 
@@ -672,7 +673,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             // Create the new block
             Block newBlock = new Block
             {
-                X = column * blockWidth -20,
+                X = column * blockWidth ,
                 Y = row * blockHeight+18,
                 W = blockWidth,
                 H = blockHeight,
