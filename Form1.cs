@@ -78,7 +78,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             H = h;
             Img = img;
             itemID = 0; // it will be according to the loot itself
-            ItemType = itemType; // item location in inventory in the hotbar or the inventory 
+            //ItemType = itemType; // item location in inventory in the hotbar or the inventory 
         }
     }
    /* public class InventoryItem
@@ -489,10 +489,10 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         droppedItemsTrav.Y + droppedItemsTrav.H <= hero.Y + hero.H &&
                         droppedItemsTrav.Y + droppedItemsTrav.H >= hero.Y) // Adjust 10 as per the gravity
                     {
-                        if (hero.Inventory.Count < 10)
+                      /*  if (hero.Inventory.Count < 10)
                         {
                             droppedItemsTrav.ItemType = 0; //displayed in hotbar
-                        }
+                        }*/
                         hero.Inventory.Add(droppedItemsTrav);
                         droppedItems.RemoveAt(i);
                        
@@ -881,11 +881,11 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             for (int i = 0; i < HotBarItemsBorder.imgs.Count; i++)
             {
                 if (HotBarItemsBorder.Vars[0]!=i)
-                g.DrawImage(HotBarItemsBorder.imgs[1], HotBarItemsBorder.X + HotBarItemsBorder.W*i, HotBarItemsBorder.Y , HotBarItemsBorder.W, HotBarItemsBorder.H);
+                g.DrawImage(HotBarItemsBorder.imgs[1], HotBarItemsBorder.X + HotBarItemsBorder.W*i +15, HotBarItemsBorder.Y , HotBarItemsBorder.W, HotBarItemsBorder.H);
                 else
                     g.DrawImage(HotBarItemsBorder.imgs[0], HotBarItemsBorder.X + HotBarItemsBorder.W * i, HotBarItemsBorder.Y-20, HotBarItemsBorder.W+20, HotBarItemsBorder.H+20);
             }
-            for (int i = 0; i < hero.Inventory.Count; i++)
+            for (int i = 0; i < hero.Inventory.Count && i < 9; i++)
             {
 
                 g.DrawImage(hero.Inventory[i].Img, HotBarItemsBorder.X+30 + HotBarItemsBorder.W * i, HotBarItemsBorder.Y + 15, 60, 60);
