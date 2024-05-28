@@ -660,6 +660,37 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             isBreaking = 0;
             breaking = null;
         }
+        private void PlaceBlock(int x, int y, int blockID)
+        {
+            int blockWidth = 60; // Ensure this matches your block width
+            int blockHeight = 60; // Ensure this matches your block height
+
+            // Determine the column and row based on the mouse click position
+            int column = x / blockWidth;
+            int row = y / blockHeight;
+
+            // Create the new block
+            Block newBlock = new Block
+            {
+                X = column * blockWidth -20,
+                Y = row * blockHeight+18,
+                W = blockWidth,
+                H = blockHeight,
+                ID = blockID,
+                Img = Groups[1].Animations[0].imgs[blockID] // Assuming blockID corresponds to the index in the images list
+            };
+
+            // Add the new block to the blocks2D list
+            if (row < blocks2D.Count)
+            {
+                blocks2D[row].Add(newBlock);
+            }
+            else
+            {
+                List<Block> newRow = new List<Block> { newBlock };
+                blocks2D.Add(newRow);
+            }
+        }
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -712,7 +743,20 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     break;
 
                 case MouseButtons.Right:
-                    // Right mouse button logic
+                    Rectangle viewRect1 = camera.GetViewRect();
+                    int clickX1 = (int)((e.X / camera.ZoomFactor) + viewRect1.X);
+                    int clickY1 = (int)((e.Y / camera.ZoomFactor) + viewRect1.Y);
+
+                    // Get the blockID from the hotbar selection
+                    int hotbarIndex = HotBarItemsBorder.Vars[0];
+                    if (hotbarIndex < hero.Inventory.GetItems().Count)
+                    {
+                        int blockID = hero.Inventory.GetItems()[hotbarIndex].itemID;
+                        PlaceBlock(clickX1, clickY1, blockID);
+                    }
+                    
+                    break;
+                    // Right mouse button logic (Build logic)
                     break;
                 case MouseButtons.XButton1:  //The bonus button 1
                     Text = "Testo1";
