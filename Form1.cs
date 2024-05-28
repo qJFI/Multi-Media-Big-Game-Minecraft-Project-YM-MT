@@ -349,17 +349,29 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         {
             int yCurr = ClientSize.Height - 60 * 10 + 400;
             int treeCount = 3; // Number of trees to create
+            int blockWidth = 60; // Ensure this matches your block width
+           
             Bitmap woodImage = Groups[1].Animations[0].imgs[2]; // Wood image from staticBlocks
             Bitmap treeGrassImage = Groups[1].Animations[0].imgs[3]; // Tree grass image from staticBlocks  
             List<int> existingTreePositions = new List<int>();
-
+            Rectangle viewRect = camera.GetViewRect();
             for (int i = 0; i < treeCount; i++)
             {
                 int x;
                 do
                 {
 
+
                     x = RR.Next(0, ClientSize.Width - 60);
+                    x = (int)((x / camera.ZoomFactor) + viewRect.X);
+
+
+                    // Determine the column and row based on the mouse click position
+                    int column = x / blockWidth;
+
+                    x = column * blockWidth;
+
+                   
                 } while (CheckOverlap(existingTreePositions, x));
 
                 existingTreePositions.Add(x);
