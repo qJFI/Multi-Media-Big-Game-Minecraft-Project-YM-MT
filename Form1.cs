@@ -24,7 +24,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
     class Animation
     {
         public List<Bitmap> imgs = new List<Bitmap>();
-        public List<Bitmap> items = new List<Bitmap>();
     }
 
     class Group // for example : Blocks 
@@ -191,11 +190,14 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         Bitmap HeroImg = new Bitmap("Images/hero1.png");
         Rectangle rctSrc, rctDst;
         Hero hero;
+        Hero animal;
         AnimatedBlock breaking = null;
         Bitmap breakedImg = null;
         BasicActor Sun; //in single actor
         BasicActor HotBarItemsBorder = new BasicActor();
         BasicActor Inventory = new BasicActor();
+        BasicActor Health = new BasicActor();
+        BasicActor Hunger = new BasicActor();
         List<BasicActor> SingleActors = new List<BasicActor>();
 
         int iframe = 0;
@@ -204,6 +206,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         int isBreaking = 0;
         int isLeftClick = 0;
         int zoomRange = 10;
+        int healthValue = 100;
+        int hungerValue = 100;
+        int minuteCounter = 0;
         List<Group> Groups = new List<Group>();
 
         int stX = 0, stY = 0;
@@ -259,6 +264,14 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             hero.Y = ClientSize.Height - hero.H - 50;
             hero.imgs = new List<Bitmap>(Groups[0].Animations[0].imgs); // Choosed group
 
+            // Hero
+            animal = new Hero();
+            animal.W = HeroImg.Width / 2;
+            animal.H = HeroImg.Height / 3;
+            animal.X = ClientSize.Width / 2;
+            animal.Y = ClientSize.Height - animal.H - 50;
+            animal.imgs = new List<Bitmap>(Groups[0].Animations[0].imgs); // Choosed group
+
             //create the hotbar borders
 
             HotBarItemsBorder.X = ClientSize.Width / 2 - 450;
@@ -282,6 +295,22 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Inventory.Vars.Add(0); //which is hovered will be used later
             Inventory.imgs.Add(new Bitmap("Images/inventory/inventory.png"));
 
+
+            Health.X = ClientSize.Width / 2 - 470;
+            Health.Y = ClientSize.Height - 150;
+            Health.W = 300;
+            Health.H = 37;
+            Health.Vars.Add(0);
+            Health.imgs.Add(new Bitmap("Images/hotbar/health.png"));
+
+            Hunger.X = ClientSize.Width / 2 + 150;
+            Hunger.Y = ClientSize.Height - 150;
+            Hunger.W = 300;
+            Hunger.H = 40;
+            Hunger.Vars.Add(0);
+            Hunger.imgs.Add(new Bitmap("Images/hotbar/hunger.png"));
+
+
             // Create random biome blocks
             CreateRandomBiomeBlocks();
 
@@ -289,6 +318,12 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             CreateTrees();
         }
 
+        void UpdateHealth(int newValue)  // we will use this function when we add fall damage(fel a8lb msh hy7sl xD) or zombies
+        {
+            healthValue = newValue;
+        }
+
+       
         void CreateRandomBiomeBlocks()
         {
             int blockWidth = 60; // Set your block width
@@ -458,6 +493,28 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
             return false;
         }
+        private void UpdateHungerStatus()
+        {
+            // some hunger logic here in the future
+
+            UpdateHungerBarFrame();
+        }
+
+        private void UpdateHungerBarFrame()
+        {
+            int frameIndex = CalculateHungerBarFrameIndex(10, minuteCounter);
+
+            Hunger.imgs[0] = new Bitmap("Images/hotbar/hunger" + frameIndex + ".png");
+        }
+
+        private int CalculateHungerBarFrameIndex(int totalFrames, int minuteCounter)
+        {
+            
+            int elapsedMinutes = minuteCounter / 60;
+            int frameIndex = elapsedMinutes % totalFrames;
+
+            return frameIndex;
+        }
 
         private void T_Tick(object sender, EventArgs e)
         {
@@ -534,6 +591,15 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     breaking = null;
                     isBreaking = 0;
                 }
+            }
+
+            minuteCounter++;
+
+            
+            if (minuteCounter % 60 == 0)
+            {
+                
+                UpdateHungerStatus();
             }
 
             //always
@@ -905,6 +971,15 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 else
                     g.DrawImage(HotBarItemsBorder.imgs[0], HotBarItemsBorder.X + HotBarItemsBorder.W * i, HotBarItemsBorder.Y - 20, HotBarItemsBorder.W + 20, HotBarItemsBorder.H + 20);
             }
+            for (int i = 0; i < Health.imgs.Count; i++)
+            {
+                g.DrawImage(Health.imgs[0], Health.X + Health.W * i + 15, Health.Y, Health.W, Health.H);
+            }
+            for (int i = 0; i < Hunger.imgs.Count; i++)
+            {
+                g.DrawImage(Hunger.imgs[0], Hunger.X + Hunger.W * i + 15, Hunger.Y, Hunger.W, Hunger.H);
+            }
+
             for (int i = 0; i < hero.Inventory.GetItems().Count && i < 9; i++)
             {
                 g.DrawImage(hero.Inventory.GetItems()[i].Img, HotBarItemsBorder.X + 30 + HotBarItemsBorder.W * i, HotBarItemsBorder.Y + 15, 60, 60);
