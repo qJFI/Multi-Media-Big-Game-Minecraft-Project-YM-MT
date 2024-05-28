@@ -5,6 +5,14 @@ using System.Windows.Forms;
 
 namespace Multi_Media_Minecraft_Project_YM_MT
 {
+
+   /* public class OneImageBasicActor 
+    {
+        public int X, Y, W, H;
+        public Bitmap img = new Bitmap();
+        public int iframe = 0;
+        public List<int> Vars = new List<int>();
+    }*/
     public class BasicActor //actors that isn't responsive no Zoom or Cam !
     {
         public int X, Y, W, H;
@@ -29,17 +37,96 @@ namespace Multi_Media_Minecraft_Project_YM_MT
     {
         public int X, Y, W, H;
         public Bitmap Img;
-        public int ID; //made for the Zoom 
+        public int ID; 
         public int ItemType;
-
     }
 
     public class AnimatedBlock
     {
         public int X, Y, W, H;
         public List<Bitmap> imgs = new List<Bitmap>();
-        
+        public int ID;
         public int iframe = 0;
+    }
+
+    public class InventoryItem
+    {
+        public int X, Y, W, H;
+        public Bitmap Img;
+        public int itemID;
+        public int ItemType;
+        public int quantity=0;
+
+        public InventoryItem(int x, int y, int w, int h, Bitmap img,  int id)
+        {
+            X = x;
+            Y = y;
+            W = w;
+            H = h;
+            Img = img;
+            itemID = id;
+            
+        }
+    }
+
+    public class Inventory
+    {
+        private List<InventoryItem> items;
+
+        public Inventory()
+        {
+            items = new List<InventoryItem>();
+        }
+
+        public void AddItem(InventoryItem item)
+        {
+            bool itemExists = false;
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i].itemID == item.itemID && items[i].quantity <64)
+                {
+                    itemExists = true;
+                    items[i].quantity++;
+                    break;
+                }
+            }
+
+            if (!itemExists)
+            {
+                item.quantity =1;
+                items.Add(item);
+            }
+        }
+
+        public void RemoveItem(int itemID, int quantity)
+        {
+            // find item index
+            int index = -1;
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i].itemID == itemID)
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            // if the item is in inventory decrease quantity
+            if (index != -1)
+            {
+                items.RemoveAt(index);
+            }
+        }
+
+        public List<InventoryItem> GetItems()
+        {
+            return items;
+        }
+
+        public void Clear()
+        {
+            items.Clear();
+        }
     }
 
     public class Hero
@@ -55,141 +142,43 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int jumpCt = 25;
         public int force = 0;
 
-        public List<InventoryItem> Inventory;
+        public Inventory Inventory;
 
         public Hero()
         {
-            Inventory = new List<InventoryItem>();
+            Inventory = new Inventory();
         }
     }
 
-    public class InventoryItem
-    {
-        public int X, Y, W, H;
-        public Bitmap Img;
-
-        public int ItemType, itemID;
-
-        public InventoryItem(int x, int y, int w, int h, Bitmap img, int itemType)
-        {
-            X = x;
-            Y = y;
-            W = w;
-            H = h;
-            Img = img;
-            itemID = 0; // it will be according to the loot itself
-            //ItemType = itemType; // item location in inventory in the hotbar or the inventory 
-        }
-    }
-   /* public class InventoryItem
-    {
-        public int ItemID;
-        public int Quantity;
-
-        public InventoryItem(int itemID, int quantity)
-        {
-            ItemID = itemID;
-            Quantity = quantity;
-        }
-    }*/
-/*
-    public class Inventory
-    {
-        private List<InventoryItem> items;
-
-        public Inventory()
-        {
-            items = new List<InventoryItem>();
-        }
-
-        public void AddItem(int itemID, int quantity)
-        {
-            // if the item is already in the inventory
-            bool found = false;
-            for (int i = 0; i < items.Count; i++)
-            {
-                if (items[i].ItemID == itemID)
-                {
-                    items[i].Quantity += quantity;
-                    found = true;
-                    break;
-                }
-            }
-
-            // if the item doesnt exist add it to the inventory
-            if (!found)
-            {
-                items.Add(new InventoryItem(itemID, quantity));
-            }
-        }
-
-        public void RemoveItem(int itemID, int quantity)
-        {
-            // find item index
-            int index = -1;
-            for (int i = 0; i < items.Count; i++)
-            {
-                if (items[i].ItemID == itemID)
-                {
-                    index = i;
-                    break;
-                }
-            }
-
-            // if the item is in inventory decrease quantity
-            if (index != -1)
-            {
-                items[index].Quantity -= quantity;
-
-                // temove if it is not there
-                if (items[index].Quantity == 0)
-                {
-                    items.RemoveAt(index);
-                }
-            }
-        }
-
-        public List<InventoryItem> GetItems()
-        {
-            return items;
-        }
-
-        public void Clear()
-        {
-            items.Clear();
-        }
-    }
-*/
     public class Camera
-{
-    public int X, Y, Width, Height;
+    {
+        public int X, Y, Width, Height;
         public float ZoomFactor;
 
-    public Camera(int width, int height)
-    {
-        Width = width;
-        Height = height;
-        X = 0;
-        Y = 0;
-        ZoomFactor = 1.0f;
+        public Camera(int width, int height)
+        {
+            Width = width;
+            Height = height;
+            X = 0;
+            Y = 0;
+            ZoomFactor = 1.0f;
+        }
+
+        public void Update(Hero hero)
+        {
+            X = (int)(hero.X - (Width / (2 * ZoomFactor)) - 200);
+            Y = (int)(hero.Y - (Height / (2 * ZoomFactor)) - 300);
+
+            // Ensure the camera doesn't go out of bounds
+            if (X < 0) X = 0;
+            if (Y < 0) Y = 0;
+        }
+
+        public Rectangle GetViewRect()
+        {
+            return new Rectangle(X, Y, (int)(Width / ZoomFactor), (int)(Height / ZoomFactor));
+        }
     }
-
-    public void Update(Hero hero)
-    {
-        X = (int)(hero.X - (Width / (2 * ZoomFactor))-200);
-        Y = (int)(hero.Y - (Height / (2 * ZoomFactor))-200);
-
-        // Ensure the camera doesn't go out of bounds
-        if (X < 0) X = 0;
-        if (Y < 0) Y = 0;
-    }
-
-    public Rectangle GetViewRect()
-    {
-        return new Rectangle(X, Y, (int)(Width / ZoomFactor), (int)(Height / ZoomFactor));
-    }
-}
-
 
     public partial class Form1 : Form
     {
@@ -204,10 +193,11 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         Hero hero;
         AnimatedBlock breaking = null;
         Bitmap breakedImg = null;
-        BasicActor Sun;
+        BasicActor Sun; //in single actor
         BasicActor HotBarItemsBorder = new BasicActor();
+        BasicActor Inventory = new BasicActor();
         List<BasicActor> SingleActors = new List<BasicActor>();
- 
+
         int iframe = 0;
         int breakingI = -1, breakingJ = -1;
         int zoom = -10;
@@ -269,21 +259,28 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             hero.Y = ClientSize.Height - hero.H - 50;
             hero.imgs = new List<Bitmap>(Groups[0].Animations[0].imgs); // Choosed group
 
-
             //create the hotbar borders
 
-            HotBarItemsBorder.X = ClientSize.Width / 2 - 350;
+            HotBarItemsBorder.X = ClientSize.Width / 2 - 450;
             HotBarItemsBorder.Y = ClientSize.Height - 100;
             HotBarItemsBorder.W = 100;
             HotBarItemsBorder.H = 100;
             HotBarItemsBorder.Vars.Add(0);
             HotBarItemsBorder.imgs.Add(new Bitmap("Images/hotbar/big.png"));
-            for (int i=0;i<8;i++)
+            for (int i = 0; i < 8; i++)
             {
                 HotBarItemsBorder.imgs.Add(new Bitmap("Images/hotbar/small.png"));
             }
 
-
+            //create inventory
+            Inventory.W = 934;
+            Inventory.H = 867;
+            Inventory.X = ClientSize.Width / 2 - Inventory.W/2;
+            Inventory.Y = ClientSize.Height /2-500;
+           
+            Inventory.Vars.Add(-1); //is inventory active ?
+            Inventory.Vars.Add(0); //which is hovered will be used later
+            Inventory.imgs.Add(new Bitmap("Images/inventory/inventory.png"));
 
             // Create random biome blocks
             CreateRandomBiomeBlocks();
@@ -310,26 +307,31 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     blockPnn.Y = yPos + (i * blockHeight);
                     blockPnn.W = blockWidth;
                     blockPnn.H = blockHeight;
-                    blockPnn.ID = j;
+                   
                     if (i < 1)
                     {
                         blockPnn.Img = Groups[1].Animations[0].imgs[0]; // Always grass for the first 5 rows from the bottom
+                        blockPnn.ID = 0;
                     }
                     else if (i < 2)
                     {
                         blockPnn.Img = Groups[1].Animations[0].imgs[1];
+                        blockPnn.ID = 1;
                     }
                     else
                     {
-                        int isStone = RR.Next(0, 2);
+                        int isStone = RR.Next(0, 3);
 
                         if (isStone == 0)
                         {
+                            
                             int randomBlock = RR.Next(4, Groups[1].Animations[0].imgs.Count);
+                            blockPnn.ID = randomBlock;
                             blockPnn.Img = Groups[1].Animations[0].imgs[randomBlock];
                         }
                         else
                         {
+                            blockPnn.ID = 4;
                             blockPnn.Img = Groups[1].Animations[0].imgs[4];
                         }
                     }
@@ -364,21 +366,16 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 int y = yCurr - woodImage.Height + 100;
 
                 makeRandomTrees(x, y, woodImage, treeGrassImage);
-
-                
             }
         }
 
         void makeRandomTrees(int baseX, int baseY, Bitmap woodImage, Bitmap treeGrassImage)
         {
-         List<Block> TreesBlocks;
-        
+            List<Block> TreesBlocks;
 
-        
             TreesBlocks = new List<Block>();
-          
             blocks2D.Add(TreesBlocks); //->20
-         
+
             // tree of height 5 blocks
             for (int i = 0; i < 5; i++)
             {
@@ -388,11 +385,11 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     Y = baseY - (i * 60),
                     W = 60,
                     H = 60,
-                    Img = woodImage
+                    Img = woodImage,
+                    ID = 2
                 };
                 blocks2D[20].Add(woodBlock);
             }
-
 
             int treeGrassTopY = baseY - (5 * 60) - 3 * 60;
             for (int i = 0; i < 3; i++)
@@ -405,20 +402,19 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         Y = treeGrassTopY + i * 60 + 60,
                         W = 60,
                         H = 60,
-                        Img = treeGrassImage
+                        Img = treeGrassImage,
+                        ID = 3
                     };
                     blocks2D[20].Add(treeGrassBlock);
                 }
             }
-        
-    }
+        }
 
         bool CheckOverlap(List<int> existingPositions, int newX)
         {
             for (int i = 0; i < existingPositions.Count; i++)
             {
                 int position = existingPositions[i];
-
 
                 if (newX >= position - 100 && newX <= position + 150)
                 {
@@ -430,7 +426,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
         bool IsDroppedOnGround(InventoryItem droppedItemsTrav)
         {
-
             for (int i = 0; i < blocks2D.Count; i++)
             {
                 List<Block> row = blocks2D[i];
@@ -438,10 +433,10 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 {
                     Block block = row[j];
 
-                    if (droppedItemsTrav.X < block.X + block.W  &&
-                        droppedItemsTrav.X + droppedItemsTrav.W  > block.X &&
-                        droppedItemsTrav.Y + droppedItemsTrav.H <= block.Y + block.H +4&&
-                        droppedItemsTrav.Y + droppedItemsTrav.H  >= block.Y) // Adjust 10 as per the gravity
+                    if (droppedItemsTrav.X < block.X + block.W &&
+                        droppedItemsTrav.X + droppedItemsTrav.W > block.X &&
+                        droppedItemsTrav.Y + droppedItemsTrav.H <= block.Y + block.H + 4 &&
+                        droppedItemsTrav.Y + droppedItemsTrav.H >= block.Y) // Adjust 10 as per the gravity
                     {
                         droppedItemsTrav.Y = block.Y - droppedItemsTrav.H; // Adjust hero's position to stand on the block
                         return true;
@@ -449,10 +444,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
             return false;
-
-            
         }
-       
+
         private void T_Tick(object sender, EventArgs e)
         {
             if (ctTimer % 1 == 0)
@@ -472,36 +465,25 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     Sun.X -= 3 * Sun.Vars[2];
                     Sun.Y += Sun.Vars[2];
                 }
-             
             }
 
-         
-                for(int i = 0;i<droppedItems.Count;i++)
+            for (int i = 0; i < droppedItems.Count; i++)
+            {
+                InventoryItem droppedItemsTrav = droppedItems[i];
+                if (!IsDroppedOnGround(droppedItemsTrav))
                 {
-                    InventoryItem droppedItemsTrav = droppedItems[i];
-                    if (!IsDroppedOnGround(droppedItemsTrav))
-                    {
-                        droppedItemsTrav.Y+=5;
-                    }
-
-                    if (droppedItemsTrav.X < hero.X + hero.W &&
-                        droppedItemsTrav.X + droppedItemsTrav.W > hero.X &&
-                        droppedItemsTrav.Y + droppedItemsTrav.H <= hero.Y + hero.H &&
-                        droppedItemsTrav.Y + droppedItemsTrav.H >= hero.Y) // Adjust 10 as per the gravity
-                    {
-                      /*  if (hero.Inventory.Count < 10)
-                        {
-                            droppedItemsTrav.ItemType = 0; //displayed in hotbar
-                        }*/
-                        hero.Inventory.Add(droppedItemsTrav);
-                        droppedItems.RemoveAt(i);
-                       
-
-                    }
+                    droppedItemsTrav.Y += 5;
                 }
-            
-                        
-                    
+
+                if (droppedItemsTrav.X < hero.X + hero.W &&
+                    droppedItemsTrav.X + droppedItemsTrav.W > hero.X &&
+                    droppedItemsTrav.Y + droppedItemsTrav.H <= hero.Y + hero.H &&
+                    droppedItemsTrav.Y + droppedItemsTrav.H >= hero.Y) // Adjust 10 as per the gravity
+                {
+                    hero.Inventory.AddItem(droppedItemsTrav);
+                    droppedItems.RemoveAt(i);
+                }
+            }
 
             // Gravity and jump logic
             if (hero.isJumping)
@@ -530,17 +512,11 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
                 else if (breaking.iframe >= 5)
                 {
-                   
-                   
-                   
-                   
-                        
-                        // Create a dropped item
-                        InventoryItem droppedItem = new InventoryItem(breaking.X + 15, breaking.Y + 30, 22, 22, breakedImg, 1);
-                        droppedItems.Add(droppedItem);
-                        isBroken = false;
+                    // Create a dropped item
+                    InventoryItem droppedItem = new InventoryItem(breaking.X + 15, breaking.Y + 30, 22, 22, breakedImg, breaking.ID);
+                    droppedItems.Add(droppedItem);
+                    isBroken = false;
 
-                    
                     blocks2D[breakingI].RemoveAt(breakingJ);
                     breaking = null;
                     isBreaking = 0;
@@ -574,7 +550,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 Sun.Vars[1] = 0; //finish
                 Sun.X = ClientSize.Width + 100;
                 Sun.Y = 300;
-          
             }
 
             ctTimer++;
@@ -614,7 +589,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     hero.iframe++;
                     hero.imgs = Groups[0].Animations[2].imgs;
                     hero.dir = 1;
-                    
                     break;
                 case Keys.A:
                 case Keys.Left:
@@ -642,6 +616,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 case Keys.C:     //Zoom-Up
                     Zoom(2);
                     break;
+
+                    //Hotbar ->
                 case Keys.D1:
                     HotBarItemsBorder.Vars[0] = 0;
                     break;
@@ -672,6 +648,10 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 case Keys.D0:
                     HotBarItemsBorder.Vars[0] = 9;
                     break;
+                case Keys.E:
+                    Inventory.Vars[0] *= -1;
+                    break;
+
             }
         }
 
@@ -679,7 +659,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         {
             isBreaking = 0;
             breaking = null;
-          
         }
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
@@ -703,7 +682,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                 block.X >= hero.X - hero.HeroHitBox &&
                                 block.Y < hero.Y + hero.HeroHitBox &&
                                  block.Y >= hero.Y - hero.HeroHitBox
-                                ) {
+                                )
+                            {
 
                                 //check click ->
                                 if (clickX < block.X + block.W &&
@@ -711,7 +691,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                     clickY <= block.Y + block.H &&
                                     clickY >= block.Y)
                                 {
-                                    Text = "works";
+                                    
                                     isBreaking = 1;
                                     breakedImg = block.Img;
                                     breakingI = i; //for removing the block
@@ -721,29 +701,14 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                     breaking.Y = block.Y;
                                     breaking.W = block.W;
                                     breaking.H = block.H;
+                                    breaking.ID = block.ID;
                                     breaking.imgs = Groups[1].Animations[2].imgs;
                                     breaking.iframe = 0; // Start breaking animation from the first frame
-
-                                    /*// Handle item collection based on block type
-                                    if (block.Img == Groups[1].Animations[0].imgs[0]) // Grass block
-                                    {
-                                        hero.Inventory.Add(new InventoryItem(1, 1));
-                                    }
-                                    else if (block.Img == Groups[1].Animations[0].imgs[4]) // Stone block
-                                    {
-                                        hero.Inventory.Add(new InventoryItem(2, 1));
-                                    }
-                                    else if (block.Img == Groups[1].Animations[0].imgs[5]) // Coal block
-                                    {
-                                        hero.Inventory.Add(new InventoryItem(3, 1));
-                                    }
-*/
                                     break;
                                 }
                             }
                         }
                     }
-
                     break;
 
                 case MouseButtons.Right:
@@ -760,7 +725,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     break;
             }
         }
-
 
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
@@ -798,7 +762,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
         }
 
-
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             DrawDouble(e.Graphics);
@@ -815,7 +778,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         {
             g.Clear(Color.White);
             g.DrawImage(BlueBackImg, 0, 0, ClientSize.Width, ClientSize.Height);
-           
+
             g.DrawImage(BackBiomeImg, 0, 0, ClientSize.Width, ClientSize.Height);
             g.DrawImage(BackImg, rctDst, rctSrc, GraphicsUnit.Pixel);
             Rectangle viewRect = camera.GetViewRect();
@@ -880,21 +843,27 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
             for (int i = 0; i < HotBarItemsBorder.imgs.Count; i++)
             {
-                if (HotBarItemsBorder.Vars[0]!=i)
-                g.DrawImage(HotBarItemsBorder.imgs[1], HotBarItemsBorder.X + HotBarItemsBorder.W*i +15, HotBarItemsBorder.Y , HotBarItemsBorder.W, HotBarItemsBorder.H);
+                if (HotBarItemsBorder.Vars[0] != i)
+                    g.DrawImage(HotBarItemsBorder.imgs[1], HotBarItemsBorder.X + HotBarItemsBorder.W * i + 15, HotBarItemsBorder.Y, HotBarItemsBorder.W, HotBarItemsBorder.H);
                 else
-                    g.DrawImage(HotBarItemsBorder.imgs[0], HotBarItemsBorder.X + HotBarItemsBorder.W * i, HotBarItemsBorder.Y-20, HotBarItemsBorder.W+20, HotBarItemsBorder.H+20);
+                    g.DrawImage(HotBarItemsBorder.imgs[0], HotBarItemsBorder.X + HotBarItemsBorder.W * i, HotBarItemsBorder.Y - 20, HotBarItemsBorder.W + 20, HotBarItemsBorder.H + 20);
             }
-            for (int i = 0; i < hero.Inventory.Count && i < 9; i++)
+            for (int i = 0; i < hero.Inventory.GetItems().Count && i < 9; i++)
             {
-
-                g.DrawImage(hero.Inventory[i].Img, HotBarItemsBorder.X+30 + HotBarItemsBorder.W * i, HotBarItemsBorder.Y + 15, 60, 60);
-             
+                g.DrawImage(hero.Inventory.GetItems()[i].Img, HotBarItemsBorder.X + 30 + HotBarItemsBorder.W * i, HotBarItemsBorder.Y + 15, 60, 60);
+                g.DrawString(hero.Inventory.GetItems()[i].quantity.ToString(), new Font("Arial", 12, FontStyle.Bold), Brushes.White, HotBarItemsBorder.X + 30 + HotBarItemsBorder.W * i, HotBarItemsBorder.Y + 15);
             }
-            
 
-
-
+            if (Inventory.Vars[0]==1)
+            {
+                g.DrawImage(Inventory.imgs[0], Inventory.X , Inventory.Y, Inventory.W, Inventory.H);
+                for (int i = 0; i < hero.Inventory.GetItems().Count; i++)
+                {
+                    int cX= Inventory.X + 55 + (Inventory.W / 10) * (i%9) , cY = Inventory.Y + Inventory.H - (Inventory.H / 8) * (i / 9) - 115, cW= 60, cH= 60;
+                    g.DrawImage(hero.Inventory.GetItems()[i].Img, cX, cY, cW, cH);
+                    g.DrawString(hero.Inventory.GetItems()[i].quantity.ToString(), new Font("Arial", 12, FontStyle.Bold), Brushes.White, cX, cY);
+                }
+            }
         }
 
         void ImagesReady() //this function to add the photos in the memory
@@ -908,7 +877,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Groups.Add(pnn);
 
             pnn = new Group();
-            pnn.groupName = "Mobs";      
+            pnn.groupName = "Mobs";
             Groups.Add(pnn);
 
             pnn = new Group();
@@ -935,7 +904,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Groups[0].Animations.Add(heroRight);
 
             Animation heroLeft = new Animation();
-            for (int i = 6; i < 10 ; i++)
+            for (int i = 6; i < 10; i++)
             {
                 heroLeft.imgs.Add(new Bitmap("Images/SimpleSteve/" + i + ".png"));
             }
@@ -954,8 +923,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Ruby.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Sapphire.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Iron.png")); // Last Block image  (11)
-            
-
 
             Groups[1].Animations.Add(staticBlocks);
 
@@ -979,17 +946,15 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             if (type == 1) // Zoom in
             {
                 camera.ZoomFactor += 0.1f;
-                hero.HeroHitBox ++;
+                hero.HeroHitBox++;
             }
-            else if (type == 2 && camera.ZoomFactor>1) // Zoom out
+            else if (type == 2 && camera.ZoomFactor > 1) // Zoom out
             {
                 camera.ZoomFactor -= 0.1f;
-                hero.HeroHitBox --;
+                hero.HeroHitBox--;
             }
             camera.Update(hero);
-
         }
-
 
         void DrawDouble(Graphics g)
         {
