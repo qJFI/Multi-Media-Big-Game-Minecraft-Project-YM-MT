@@ -163,7 +163,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
     public class Camera
 {
     public int X, Y, Width, Height;
-    public float ZoomFactor { get; set; }
+        public float ZoomFactor;
 
     public Camera(int width, int height)
     {
