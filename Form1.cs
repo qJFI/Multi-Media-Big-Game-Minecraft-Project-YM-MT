@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace Multi_Media_Minecraft_Project_YM_MT
 {
-    public class BasicActor
+    public class BasicActor //actors that isn't responsive no Zoom or Cam !
     {
         public int X, Y, W, H;
         public List<Bitmap> imgs = new List<Bitmap>();
@@ -63,23 +63,25 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         }
     }
 
-    public class DroppedItem
+    public class InventoryItem
     {
         public int X, Y, W, H;
         public Bitmap Img;
-        public int ItemType;
 
-        public DroppedItem(int x, int y, int w, int h, Bitmap img, int itemType)
+        public int ItemType, itemID;
+
+        public InventoryItem(int x, int y, int w, int h, Bitmap img, int itemType)
         {
             X = x;
             Y = y;
             W = w;
             H = h;
             Img = img;
-            ItemType = itemType;
+            itemID = 0; // it will be according to the loot itself
+            ItemType = itemType; // item location in inventory in the hotbar or the inventory 
         }
     }
-    public class InventoryItem
+   /* public class InventoryItem
     {
         public int ItemID;
         public int Quantity;
@@ -89,8 +91,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             ItemID = itemID;
             Quantity = quantity;
         }
-    }
-
+    }*/
+/*
     public class Inventory
     {
         private List<InventoryItem> items;
@@ -157,7 +159,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             items.Clear();
         }
     }
-
+*/
     public class Camera
 {
     public int X, Y, Width, Height;
@@ -203,6 +205,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         AnimatedBlock breaking = null;
         Bitmap breakedImg = null;
         BasicActor Sun;
+        BasicActor HotBarItemsBorder = new BasicActor();
         List<BasicActor> SingleActors = new List<BasicActor>();
  
         int iframe = 0;
@@ -219,7 +222,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         int ex = -1;
         int ey = -1;
         List<List<Block>> blocks2D = new List<List<Block>>(); // 2D list for blocks
-        List<DroppedItem> droppedItems = new List<DroppedItem>();
+        List<InventoryItem> droppedItems = new List<InventoryItem>();
         bool isBroken = false;
 
         Random RR = new Random();
@@ -265,6 +268,22 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             hero.X = ClientSize.Width / 2;
             hero.Y = ClientSize.Height - hero.H - 50;
             hero.imgs = new List<Bitmap>(Groups[0].Animations[0].imgs); // Choosed group
+
+
+            //create the hotbar borders
+
+            HotBarItemsBorder.X = ClientSize.Width / 2 - 350;
+            HotBarItemsBorder.Y = ClientSize.Height - 100;
+            HotBarItemsBorder.W = 100;
+            HotBarItemsBorder.H = 100;
+            HotBarItemsBorder.Vars.Add(0);
+            HotBarItemsBorder.imgs.Add(new Bitmap("Images/hotbar/big.png"));
+            for (int i=0;i<8;i++)
+            {
+                HotBarItemsBorder.imgs.Add(new Bitmap("Images/hotbar/small.png"));
+            }
+
+
 
             // Create random biome blocks
             CreateRandomBiomeBlocks();
@@ -409,7 +428,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             return false;
         }
 
-        bool IsDroppedOnGround(DroppedItem droppedItemsTrav)
+        bool IsDroppedOnGround(InventoryItem droppedItemsTrav)
         {
 
             for (int i = 0; i < blocks2D.Count; i++)
@@ -433,7 +452,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
             
         }
-
+       
         private void T_Tick(object sender, EventArgs e)
         {
             if (ctTimer % 1 == 0)
@@ -459,10 +478,25 @@ namespace Multi_Media_Minecraft_Project_YM_MT
          
                 for(int i = 0;i<droppedItems.Count;i++)
                 {
-                    DroppedItem droppedItemsTrav = droppedItems[i];
+                    InventoryItem droppedItemsTrav = droppedItems[i];
                     if (!IsDroppedOnGround(droppedItemsTrav))
                     {
                         droppedItemsTrav.Y+=5;
+                    }
+
+                    if (droppedItemsTrav.X < hero.X + hero.W &&
+                        droppedItemsTrav.X + droppedItemsTrav.W > hero.X &&
+                        droppedItemsTrav.Y + droppedItemsTrav.H <= hero.Y + hero.H &&
+                        droppedItemsTrav.Y + droppedItemsTrav.H >= hero.Y) // Adjust 10 as per the gravity
+                    {
+                        if (hero.Inventory.Count < 10)
+                        {
+                            droppedItemsTrav.ItemType = 0; //displayed in hotbar
+                        }
+                        hero.Inventory.Add(droppedItemsTrav);
+                        droppedItems.RemoveAt(i);
+                       
+
                     }
                 }
             
@@ -502,7 +536,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                    
                         
                         // Create a dropped item
-                        DroppedItem droppedItem = new DroppedItem(breaking.X + 15, breaking.Y + 30, 22, 22, breakedImg, 1);
+                        InventoryItem droppedItem = new InventoryItem(breaking.X + 15, breaking.Y + 30, 22, 22, breakedImg, 1);
                         droppedItems.Add(droppedItem);
                         isBroken = false;
 
@@ -580,6 +614,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     hero.iframe++;
                     hero.imgs = Groups[0].Animations[2].imgs;
                     hero.dir = 1;
+                    
                     break;
                 case Keys.A:
                 case Keys.Left:
@@ -606,6 +641,36 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     break;
                 case Keys.C:     //Zoom-Up
                     Zoom(2);
+                    break;
+                case Keys.D1:
+                    HotBarItemsBorder.Vars[0] = 0;
+                    break;
+                case Keys.D2:
+                    HotBarItemsBorder.Vars[0] = 1;
+                    break;
+                case Keys.D3:
+                    HotBarItemsBorder.Vars[0] = 2;
+                    break;
+                case Keys.D4:
+                    HotBarItemsBorder.Vars[0] = 3;
+                    break;
+                case Keys.D5:
+                    HotBarItemsBorder.Vars[0] = 4;
+                    break;
+                case Keys.D6:
+                    HotBarItemsBorder.Vars[0] = 5;
+                    break;
+                case Keys.D7:
+                    HotBarItemsBorder.Vars[0] = 6;
+                    break;
+                case Keys.D8:
+                    HotBarItemsBorder.Vars[0] = 7;
+                    break;
+                case Keys.D9:
+                    HotBarItemsBorder.Vars[0] = 8;
+                    break;
+                case Keys.D0:
+                    HotBarItemsBorder.Vars[0] = 9;
                     break;
             }
         }
@@ -659,7 +724,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                     breaking.imgs = Groups[1].Animations[2].imgs;
                                     breaking.iframe = 0; // Start breaking animation from the first frame
 
-                                    // Handle item collection based on block type
+                                    /*// Handle item collection based on block type
                                     if (block.Img == Groups[1].Animations[0].imgs[0]) // Grass block
                                     {
                                         hero.Inventory.Add(new InventoryItem(1, 1));
@@ -672,7 +737,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                     {
                                         hero.Inventory.Add(new InventoryItem(3, 1));
                                     }
-
+*/
                                     break;
                                 }
                             }
@@ -810,9 +875,25 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             // Draw dropped items using a for loop without var
             for (int i = 0; i < droppedItems.Count; i++)
             {
-                DroppedItem droppedItem = droppedItems[i];
+                InventoryItem droppedItem = droppedItems[i];
                 g.DrawImage(droppedItem.Img, (droppedItem.X - viewRect.X) * camera.ZoomFactor, (droppedItem.Y - viewRect.Y) * camera.ZoomFactor, droppedItem.W, droppedItem.H);
             }
+            for (int i = 0; i < HotBarItemsBorder.imgs.Count; i++)
+            {
+                if (HotBarItemsBorder.Vars[0]!=i)
+                g.DrawImage(HotBarItemsBorder.imgs[1], HotBarItemsBorder.X + HotBarItemsBorder.W*i, HotBarItemsBorder.Y , HotBarItemsBorder.W, HotBarItemsBorder.H);
+                else
+                    g.DrawImage(HotBarItemsBorder.imgs[0], HotBarItemsBorder.X + HotBarItemsBorder.W * i, HotBarItemsBorder.Y-20, HotBarItemsBorder.W+20, HotBarItemsBorder.H+20);
+            }
+            for (int i = 0; i < hero.Inventory.Count; i++)
+            {
+
+                g.DrawImage(hero.Inventory[i].Img, HotBarItemsBorder.X+30 + HotBarItemsBorder.W * i, HotBarItemsBorder.Y + 15, 60, 60);
+             
+            }
+            
+
+
 
         }
 
