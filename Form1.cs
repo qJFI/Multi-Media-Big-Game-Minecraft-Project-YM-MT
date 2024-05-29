@@ -186,7 +186,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         Bitmap HeroImg = new Bitmap("Images/hero1.png");
         Rectangle rctSrc, rctDst;
         Hero hero;
-        Hero animal;
+        Hero Zombie;
         AnimatedBlock breaking = null;
         Bitmap breakedImg = null;
         BasicActor Sun; //in single actor
@@ -203,7 +203,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         int isLeftClick = 0;
         int zoomRange = 10;
         int healthValue = 100;
-        int hungerValue = 100;
+        int hungerValue = 10;
         int minuteCounter = 0;
         List<Group> Groups = new List<Group>();
 
@@ -261,12 +261,12 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             hero.imgs = new List<Bitmap>(Groups[0].Animations[0].imgs); // Choosed group
 
             // Hero
-            animal = new Hero();
-            animal.W = HeroImg.Width / 2;
-            animal.H = HeroImg.Height / 3;
-            animal.X = ClientSize.Width / 2;
-            animal.Y = ClientSize.Height - animal.H - 50;
-            animal.imgs = new List<Bitmap>(Groups[0].Animations[0].imgs); // Choosed group
+            Zombie = new Hero();
+            Zombie.W = HeroImg.Width / 2;
+            Zombie.H = HeroImg.Height / 3;
+            Zombie.X = ClientSize.Width / 2;
+            Zombie.Y = ClientSize.Height - Zombie.H - 50;
+            Zombie.imgs = new List<Bitmap>(Groups[0].Animations[0].imgs);
 
             //create the hotbar borders
 
@@ -391,8 +391,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 int x;
                 do
                 {
-
-
                     x = RR.Next(0, ClientSize.Width - 60);
                     x = (int)((x / camera.ZoomFactor) + viewRect.X);
 
@@ -491,25 +489,11 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         }
         private void UpdateHungerStatus()
         {
-            // some hunger logic here in the future
-
-            UpdateHungerBarFrame();
-        }
-
-        private void UpdateHungerBarFrame()
-        {
-            int frameIndex = CalculateHungerBarFrameIndex(10, minuteCounter)%11;
-
-            Hunger.imgs[0] = new Bitmap("Images/hotbar/hunger" + frameIndex + ".png");
-        }
-
-        private int CalculateHungerBarFrameIndex(int totalFrames, int minuteCounter)
-        {
-            
+            int totalFrames = 11;
             int elapsedMinutes = minuteCounter / 60;
-            int frameIndex = elapsedMinutes % totalFrames;
+            hungerValue = elapsedMinutes % totalFrames;
 
-            return frameIndex;
+            Hunger.imgs[0] = new Bitmap("Images/hotbar/hunger" + hungerValue + ".png");
         }
 
         private void T_Tick(object sender, EventArgs e)
@@ -594,7 +578,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             
             if (minuteCounter % 60 == 0)
             {
-                
                 UpdateHungerStatus();
             }
 
@@ -864,7 +847,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     
                     break;
                     // Right mouse button logic (Build logic)
-                    break;
                 case MouseButtons.XButton1:  //The bonus button 1
                     Text = "Testo1";
                     break;
