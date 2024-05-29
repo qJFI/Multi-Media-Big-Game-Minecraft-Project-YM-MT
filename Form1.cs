@@ -144,6 +144,16 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Inventory = new Inventory();
         }
     }
+    public class Enemy
+    {
+        public int X, Y, W, H;
+        public List<Bitmap> imgs;
+        public int iframe = 0;
+        public int dir = 1; //right -1 left
+        public int speed = 10;
+       
+      
+    }
 
     public class Camera
     {
