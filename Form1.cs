@@ -70,7 +70,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
     public class Inventory
     {
-        private List<InventoryItem> items;
+        public List<InventoryItem> items;
 
         public Inventory()
         {
@@ -117,11 +117,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
         }
 
-        public List<InventoryItem> GetItems()
-        {
-            return items;
-        }
-
+      
         public void Clear()
         {
             items.Clear();
@@ -752,22 +748,54 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Block newBlock = new Block
             {
                 X = column * blockWidth ,
-                Y = row * blockHeight+18,
+                Y = row * blockHeight+17,
                 W = blockWidth,
                 H = blockHeight,
                 ID = blockID,
                 Img = Groups[1].Animations[0].imgs[blockID] // Assuming blockID corresponds to the index in the images list
             };
 
-            // Add the new block to the blocks2D list
-            if (row < blocks2D.Count)
+            bool blockExists = false;
+            for (int i = 0; i < blocks2D.Count; i++)
             {
-                blocks2D[row].Add(newBlock);
+                List<Block> rowBlocks = blocks2D[i];
+                for (int j = 0; j < rowBlocks.Count; j++)
+                {
+                    Block block = rowBlocks[j];
+                    if (block.X == newBlock.X && block.Y == newBlock.Y)
+                    {
+                        // There's already a block in this position, so we can't place a new one
+                        blockExists = true;
+                        break;
+                    }
+                }
+                if (blockExists)
+                    break;
             }
-            else
-            {
-                List<Block> newRow = new List<Block> { newBlock };
-                blocks2D.Add(newRow);
+
+            if (blockExists)
+                return;
+
+            // Add the new block to the blocks2D list
+            int itemIndex = HotBarItemsBorder.Vars[0];
+           
+            if (hero.Inventory.items[itemIndex].quantity> 0){
+
+            
+                if (row < blocks2D.Count)
+                {
+                    blocks2D[row].Add(newBlock);
+                }
+                else
+                {
+                    List<Block> newRow = new List<Block> { newBlock };
+                    blocks2D.Add(newRow);
+                }
+                hero.Inventory.items[itemIndex].quantity--;
+                if(hero.Inventory.items[itemIndex].quantity==0)
+                {
+                    hero.Inventory.items.RemoveAt(itemIndex);
+                }
             }
         }
 
@@ -828,9 +856,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
                     // Get the blockID from the hotbar selection
                     int hotbarIndex = HotBarItemsBorder.Vars[0];
-                    if (hotbarIndex < hero.Inventory.GetItems().Count)
+                    if (hotbarIndex < hero.Inventory.items.Count)
                     {
-                        int blockID = hero.Inventory.GetItems()[hotbarIndex].itemID;
+                        int blockID = hero.Inventory.items[hotbarIndex].itemID;
                         PlaceBlock(clickX1, clickY1, blockID);
                     }
                     
@@ -980,20 +1008,20 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 g.DrawImage(Hunger.imgs[0], Hunger.X + Hunger.W * i + 15, Hunger.Y, Hunger.W, Hunger.H);
             }
 
-            for (int i = 0; i < hero.Inventory.GetItems().Count && i < 9; i++)
+            for (int i = 0; i < hero.Inventory.items.Count && i < 9; i++)
             {
-                g.DrawImage(hero.Inventory.GetItems()[i].Img, HotBarItemsBorder.X + 30 + HotBarItemsBorder.W * i, HotBarItemsBorder.Y + 15, 60, 60);
-                g.DrawString(hero.Inventory.GetItems()[i].quantity.ToString(), new Font("Arial", 12, FontStyle.Bold), Brushes.White, HotBarItemsBorder.X + 30 + HotBarItemsBorder.W * i, HotBarItemsBorder.Y + 15);
+                g.DrawImage(hero.Inventory.items[i].Img, HotBarItemsBorder.X + 30 + HotBarItemsBorder.W * i, HotBarItemsBorder.Y + 15, 60, 60);
+                g.DrawString(hero.Inventory.items[i].quantity.ToString(), new Font("Arial", 12, FontStyle.Bold), Brushes.White, HotBarItemsBorder.X + 30 + HotBarItemsBorder.W * i, HotBarItemsBorder.Y + 15);
             }
 
             if (Inventory.Vars[0]==1)
             {
                 g.DrawImage(Inventory.imgs[0], Inventory.X , Inventory.Y, Inventory.W, Inventory.H);
-                for (int i = 0; i < hero.Inventory.GetItems().Count; i++)
+                for (int i = 0; i < hero.Inventory.items.Count; i++)
                 {
                     int cX= Inventory.X + 55 + (Inventory.W / 10) * (i%9) , cY = Inventory.Y + Inventory.H - (Inventory.H / 8) * (i / 9) - 115, cW= 60, cH= 60;
-                    g.DrawImage(hero.Inventory.GetItems()[i].Img, cX, cY, cW, cH);
-                    g.DrawString(hero.Inventory.GetItems()[i].quantity.ToString(), new Font("Arial", 12, FontStyle.Bold), Brushes.White, cX, cY);
+                    g.DrawImage(hero.Inventory.items[i].Img, cX, cY, cW, cH);
+                    g.DrawString(hero.Inventory.items[i].quantity.ToString(), new Font("Arial", 12, FontStyle.Bold), Brushes.White, cX, cY);
                 }
             }
         }
