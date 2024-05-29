@@ -991,14 +991,12 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 else
                     g.DrawImage(HotBarItemsBorder.imgs[0], HotBarItemsBorder.X + HotBarItemsBorder.W * i, HotBarItemsBorder.Y - 20, HotBarItemsBorder.W + 20, HotBarItemsBorder.H + 20);
             }
-            for (int i = 0; i < Health.imgs.Count; i++)
-            {
-                g.DrawImage(Health.imgs[0], Health.X + Health.W * i + 15, Health.Y, Health.W, Health.H);
-            }
-            for (int i = 0; i < Hunger.imgs.Count; i++)
-            {
-                g.DrawImage(Hunger.imgs[0], Hunger.X + Hunger.W * i + 15, Hunger.Y, Hunger.W, Hunger.H);
-            }
+            
+                g.DrawImage(Health.imgs[0], Health.X+ 15, Health.Y, Health.W, Health.H);
+            
+          
+                g.DrawImage(Hunger.imgs[0], Hunger.X+ 15, Hunger.Y, Hunger.W, Hunger.H);
+            
 
             for (int i = 0; i < hero.Inventory.items.Count && i < 9; i++)
             {
