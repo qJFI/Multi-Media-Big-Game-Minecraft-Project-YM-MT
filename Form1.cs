@@ -136,7 +136,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public bool isJumping = false;
         public int jumpCt = 25;
         public int force = 0;
-
+       
         public Inventory Inventory;
 
         public Hero()
@@ -151,8 +151,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int iframe = 0;
         public int dir = 1; //right -1 left
         public int speed = 10;
-       
-      
+        public int type = 0; //0->zombie 1->Skeleton 2->Creeper
+        public int health, fullHealth;
     }
 
     public class Camera
@@ -215,7 +215,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         int healthValue = 100;
         int hungerValue = 10;
         int minuteCounter = 0;
-        List<Group> Groups = new List<Group>();
+        int yPos;
 
         int stX = 0, stY = 0;
         Timer t = new Timer();
@@ -224,6 +224,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         int ey = -1;
         List<List<Block>> blocks2D = new List<List<Block>>(); // 2D list for blocks
         List<InventoryItem> droppedItems = new List<InventoryItem>();
+        List<Group> Groups = new List<Group>();
+        List<Enemy> Enemies = new List<Enemy>();
         bool isBroken = false;
 
         Random RR = new Random();
@@ -322,6 +324,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
             // Tree
             CreateTrees();
+
+            //Zombies
+            CreateZombie();
         }
 
         void UpdateHealth(int newValue)  // we will use this function when we add fall damage(fel a8lb msh hy7sl xD) or zombies
@@ -336,7 +341,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             int blockHeight = 60; // Set your block height
             int columns = ClientSize.Width / blockWidth;
             int rows = 20; // Number of rows of blocks
-            int yPos = ClientSize.Height - blockHeight * rows + 1000; // Starting Y position of the bottom row
+            yPos = ClientSize.Height - blockHeight * rows + 1000; // Starting Y position of the bottom row
 
             for (int i = 0; i < rows; i++)
             {
@@ -386,6 +391,53 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             hero.Y = yPos - hero.H + 10;
         }
 
+        void CreateZombie()
+        {
+            int yCurr = ClientSize.Height  -1000;
+            int zombieCount = 3; // Number of trees to create
+            int blockWidth = 60; // Ensure this matches your block width
+            yPos -= 7*60-10;
+            Bitmap woodImage = Groups[1].Animations[0].imgs[2]; // Wood image from staticBlock
+            List<int> existingTreePositions = new List<int>();
+            Rectangle viewRect = camera.GetViewRect();
+            for (int i = 0; i < zombieCount; i++)
+            {
+                int x;
+                do
+                {
+                    x = RR.Next(0, ClientSize.Width - 60);
+                    x = (int)((x / camera.ZoomFactor) + viewRect.X);
+
+
+                    // Determine the column and row based on the mouse click position
+                    int column = x / blockWidth;
+
+                    x = column * blockWidth;
+
+
+                } while (CheckOverlap(existingTreePositions, x));
+
+                existingTreePositions.Add(x);
+
+                int y = yCurr - woodImage.Height + 100;
+
+                Enemy Zombie = new Enemy
+                {
+                    X = x,
+                    Y = yPos,
+                    W = hero.W,
+                    H = hero.H,
+                    imgs = Groups[2].Animations[0].imgs,
+                    health = 200,
+                    fullHealth = 200,
+
+
+                };
+                Enemies.Add(Zombie);
+            }
+        }
+
+
         void CreateTrees()
         {
             int yCurr = ClientSize.Height - 60 * 10 + 400;
@@ -420,6 +472,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 makeRandomTrees(x, y, woodImage, treeGrassImage);
             }
         }
+
 
         void makeRandomTrees(int baseX, int baseY, Bitmap woodImage, Bitmap treeGrassImage)
         {
@@ -1014,6 +1067,13 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     g.DrawString(hero.Inventory.items[i].quantity.ToString(), new Font("Arial", 12, FontStyle.Bold), Brushes.White, cX, cY);
                 }
             }
+
+            for (int i = 0; i < Enemies.Count; i++)
+            {
+                Enemy enemyTrav = Enemies[i];
+                g.DrawImage(enemyTrav.imgs[enemyTrav.iframe], enemyTrav.X, enemyTrav.Y, enemyTrav.W, enemyTrav.H);
+               
+            }
         }
 
         void ImagesReady() //this function to add the photos in the memory
@@ -1027,7 +1087,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Groups.Add(pnn);
 
             pnn = new Group();
-            pnn.groupName = "Mobs";
+            pnn.groupName = "Monsters";// [2] 1-ZombieRight 2-ZombieRight 3-Skeleton...
             Groups.Add(pnn);
 
             pnn = new Group();
@@ -1038,6 +1098,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             pnn.groupName = "Trees";
             Groups.Add(pnn);
 
+            //hero
             Animation heroStableRight = new Animation();
             heroStableRight.imgs.Add(new Bitmap("Images/SimpleSteve/0.png"));
             Groups[0].Animations.Add(heroStableRight);
@@ -1060,6 +1121,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
             Groups[0].Animations.Add(heroLeft);
 
+
+
+            //blocks
             Animation staticBlocks = new Animation();
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/grass.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Dirt.png"));
@@ -1087,6 +1151,22 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
 
             Groups[1].Animations.Add(blockBreaking);
+
+
+            //Monsters 
+
+            Animation ZombieRight = new Animation();
+            for (int i = 0; i < 10; i++)
+            {
+                ZombieRight.imgs.Add(new Bitmap("Images/Monsters/Zombie/ZombieRight/tile00"+i+".png"));
+            }
+            Groups[2].Animations.Add(ZombieRight);
+            Animation ZombieLeft = new Animation();
+            for (int i = 0; i < 10; i++)
+            {
+                ZombieLeft.imgs.Add(new Bitmap("Images/Monsters/Zombie/ZombieRight/tile00" + i + ".png"));
+            }
+            Groups[2].Animations.Add(ZombieLeft);
         }
 
         void Zoom(int type)
