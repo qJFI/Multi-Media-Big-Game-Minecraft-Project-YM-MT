@@ -346,7 +346,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             for (int i = 0; i < rows; i++)
             {
                 List<Block> rowBlocks = new List<Block>();
-                for (int j = 0; j < columns; j++)
+                for (int j = 0; j < columns +30; j++)
                 {
                     Block blockPnn = new Block();
                     blockPnn.X = j * blockWidth;
