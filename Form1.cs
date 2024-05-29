@@ -308,7 +308,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Hunger.W = 300;
             Hunger.H = 40;
             Hunger.Vars.Add(0);
-            Hunger.imgs.Add(new Bitmap("Images/hotbar/hunger.png"));
+            Hunger.imgs.Add(new Bitmap("Images/hotbar/hunger0.png"));
 
 
             // Create random biome blocks
@@ -502,7 +502,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
         private void UpdateHungerBarFrame()
         {
-            int frameIndex = CalculateHungerBarFrameIndex(10, minuteCounter);
+            int frameIndex = CalculateHungerBarFrameIndex(10, minuteCounter)%11;
 
             Hunger.imgs[0] = new Bitmap("Images/hotbar/hunger" + frameIndex + ".png");
         }
