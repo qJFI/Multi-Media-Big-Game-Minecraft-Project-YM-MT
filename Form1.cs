@@ -132,7 +132,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int iframe = 0;
         public int isHeroStable = 0;
         public int dir = 1; //right -1 left
-        public int speed = 10;
+        public int speed = 20;
         public bool isJumping = false;
         public int jumpCt = 25;
         public int force = 0;
@@ -273,13 +273,14 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             hero.imgs = new List<Bitmap>(Groups[0].Animations[0].imgs); // Choosed group
 
             // Hero
+            /*
             Zombie = new Hero();
             Zombie.W = HeroImg.Width / 2;
             Zombie.H = HeroImg.Height / 3;
             Zombie.X = ClientSize.Width / 2;
             Zombie.Y = ClientSize.Height - Zombie.H - 50;
             Zombie.imgs = new List<Bitmap>(Groups[0].Animations[0].imgs);
-
+            */
             //create the hotbar borders
 
             HotBarItemsBorder.X = ClientSize.Width / 2 - 450;
@@ -396,7 +397,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             int yCurr = ClientSize.Height  -1000;
             int zombieCount = 3; // Number of trees to create
             int blockWidth = 60; // Ensure this matches your block width
-            yPos -= 7*60-10;
+            
             Bitmap woodImage = Groups[1].Animations[0].imgs[2]; // Wood image from staticBlock
             List<int> existingTreePositions = new List<int>();
             Rectangle viewRect = camera.GetViewRect();
@@ -424,7 +425,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 Enemy Zombie = new Enemy
                 {
                     X = x,
-                    Y = yPos,
+                    Y = yPos - hero.H,
                     W = hero.W,
                     H = hero.H,
                     imgs = Groups[2].Animations[0].imgs,
@@ -688,10 +689,10 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     Block block = row[j];
                     if (hero.X < block.X + block.W - 40 &&
                         hero.X + hero.W - 40 > block.X &&
-                        hero.Y + hero.H <= block.Y + block.H &&
+                        hero.Y + hero.H <= block.Y + block.H  &&
                         hero.Y + hero.H + 10 >= block.Y) // Adjust 10 as per the gravity
                     {
-                        hero.Y = block.Y - hero.H; // Adjust hero's position to stand on the block
+                        hero.Y = block.Y - hero.H+10; // Adjust hero's position to stand on the block
                         return true;
                     }
                 }
@@ -1068,10 +1069,11 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
+           
             for (int i = 0; i < Enemies.Count; i++)
             {
                 Enemy enemyTrav = Enemies[i];
-                g.DrawImage(enemyTrav.imgs[enemyTrav.iframe], enemyTrav.X, enemyTrav.Y, enemyTrav.W, enemyTrav.H);
+                g.DrawImage(enemyTrav.imgs[enemyTrav.iframe], (enemyTrav.X - viewRect.X) * camera.ZoomFactor, (enemyTrav.Y - viewRect.Y) * camera.ZoomFactor, enemyTrav.W * camera.ZoomFactor, enemyTrav.H * camera.ZoomFactor);
                
             }
         }
@@ -1167,6 +1169,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 ZombieLeft.imgs.Add(new Bitmap("Images/Monsters/Zombie/ZombieRight/tile00" + i + ".png"));
             }
             Groups[2].Animations.Add(ZombieLeft);
+
+
         }
 
         void Zoom(int type)
