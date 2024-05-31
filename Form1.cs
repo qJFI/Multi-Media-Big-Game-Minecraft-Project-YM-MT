@@ -428,7 +428,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     Y = yPos - hero.H,
                     W = hero.W,
                     H = hero.H,
-                    imgs = Groups[2].Animations[0].imgs,
+                    imgs = Groups[2].Animations[1].imgs,
                     health = 200,
                     fullHealth = 200,
 
@@ -1158,15 +1158,15 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             //Monsters 
 
             Animation ZombieRight = new Animation();
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 2; i++)
             {
-                ZombieRight.imgs.Add(new Bitmap("Images/Monsters/Zombie/ZombieRight/tile00"+i+".png"));
+                ZombieRight.imgs.Add(new Bitmap("Images/Monsters/Zombie/ZombieRight/zombie" + (i+1) +".png"));
             }
             Groups[2].Animations.Add(ZombieRight);
             Animation ZombieLeft = new Animation();
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 2; i++)
             {
-                ZombieLeft.imgs.Add(new Bitmap("Images/Monsters/Zombie/ZombieRight/tile00" + i + ".png"));
+                ZombieLeft.imgs.Add(new Bitmap("Images/Monsters/Zombie/ZombieLeft/zombie" + (i + 1) + ".png"));
             }
             Groups[2].Animations.Add(ZombieLeft);
 
