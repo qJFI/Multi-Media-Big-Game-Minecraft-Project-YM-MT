@@ -13,6 +13,14 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             public List<int> Vars = new List<int>();
         }*/
 
+    public class Effect
+    {
+        public int X, Y, W, H;
+        public List<Bitmap> imgs = new List<Bitmap>();
+        public int iframe = 0;
+        public int stTime, endTime;
+       
+    }
     public class cAdvImg {
 
         public Rectangle rctSrc;
@@ -249,6 +257,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         List<Group> Groups = new List<Group>();
         List<Enemy> Enemies = new List<Enemy>();
         List<Bullet> Bullets = new List<Bullet>();
+        List<Effect> Effects = new List<Effect>();
         //List<InventoryItem> heroTools = new List<InventoryItem>();
         bool isBroken = false;
 
@@ -615,6 +624,15 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         {
             if (hero.health <= 0)
                 return;
+
+            for (int i = 0; i < Effects.Count; i++)
+            {
+                Effect EffectsTrav = Effects[i];
+                EffectsTrav.iframe++;
+                if (ctTimer > EffectsTrav.endTime)
+                    Effects.RemoveAt(i);
+            }
+
             if (ctTimer % 1 == 0)
             {
                 if (rctSrc.X + rctSrc.Width < BackImg.Width)
@@ -685,6 +703,15 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         EnemyTrav.dir = 0;
                         // Enemy touches the hero
                         hero.health -= 3;
+                        Effect pnnEffect = new Effect();
+                        pnnEffect.X = hero.X;
+                        pnnEffect.Y = hero.Y;
+                        pnnEffect.W = 100;
+                        pnnEffect.H = 100;
+                        pnnEffect.imgs = Groups[3].Animations[0].imgs; // Blood
+                        pnnEffect.stTime = ctTimer;
+                        pnnEffect.endTime = ctTimer + 7;
+                        Effects.Add(pnnEffect);
                         Health1.rctSrc.Width -= 10;
                         Health1.rctDst.Width -= 11;
                     }
@@ -1226,6 +1253,16 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                             BulletsTrav.H * camera.ZoomFactor);
             }
 
+            for (int i = 0; i < Effects.Count; i++)
+            {
+                Effect EffectsTrav = Effects[i];
+                g.DrawImage(EffectsTrav.imgs[EffectsTrav.iframe% EffectsTrav.imgs.Count],
+                            (EffectsTrav.X - viewRect.X) * camera.ZoomFactor,
+                            (EffectsTrav.Y - viewRect.Y) * camera.ZoomFactor,
+                            EffectsTrav.W * camera.ZoomFactor,
+                            EffectsTrav.H * camera.ZoomFactor);
+            }
+
 
             //dont draw thing after this block just before
             for (int i = 0; i < droppedItems.Count; i++)
@@ -1282,12 +1319,14 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Groups.Add(pnn);
 
             pnn = new Group();
-            pnn.groupName = "Animals";
+            pnn.groupName = "Effects";// [3] 1-blood 2-...
             Groups.Add(pnn);
 
             pnn = new Group();
-            pnn.groupName = "Trees";
+            pnn.groupName = "Animals";
             Groups.Add(pnn);
+
+
 
             //hero
             Animation heroStableRight = new Animation();
@@ -1358,6 +1397,14 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 ZombieLeft.imgs.Add(new Bitmap("Images/Monsters/Zombie/ZombieLeft/zombie" + (i + 1) + ".png"));
             }
             Groups[2].Animations.Add(ZombieLeft);
+
+            //effects 
+            Animation blood = new Animation();
+            for (int i = 0; i < 4; i++)
+            {
+                blood.imgs.Add(new Bitmap("Images/blood/blood (" + (i + 1) + ").png"));
+            }
+            Groups[3].Animations.Add(blood);
 
 
         }
