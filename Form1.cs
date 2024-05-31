@@ -13,6 +13,12 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             public List<int> Vars = new List<int>();
         }*/
 
+    public class cAdvImg {
+
+        public Rectangle rctSrc;
+        public Rectangle rctDst;
+        public Bitmap img;
+    }
 
     public class Bullet
     {
@@ -147,7 +153,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int speed = 20;
         public bool isJumping = false;
         public int jumpCt = 25;
-        public int force = 0;
+        public int health = 100;
+        
        
         public Inventory Inventory;
 
@@ -161,8 +168,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int X, Y, W, H;
         public List<Bitmap> imgs;
         public int iframe = 0;
-        public int dir = 1; //right -1 left
+        public int dir;
         public int speed = 10;
+        public int moveCt = 30;
         public int type = 0; //0->zombie 1->Skeleton 2->Creeper
         public int health, fullHealth;
     }
@@ -215,7 +223,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         BasicActor Sun; //in single actor
         BasicActor HotBarItemsBorder = new BasicActor();
         BasicActor Inventory = new BasicActor();
-        BasicActor Health = new BasicActor();
+        cAdvImg Health1 = new cAdvImg();
+        BasicActor Health2 = new BasicActor();
         BasicActor Hunger = new BasicActor();
    
 
@@ -321,12 +330,24 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Inventory.imgs.Add(new Bitmap("Images/inventory/inventory.png"));
 
 
-            Health.X = ClientSize.Width / 2 - 470;
-            Health.Y = ClientSize.Height - 150;
-            Health.W = 300;
-            Health.H = 37;
-            Health.Vars.Add(0);
-            Health.imgs.Add(new Bitmap("Images/hotbar/health.png"));
+
+            Bitmap HealthImg = new Bitmap("Images/hotbar/health1.png");
+            Health1.rctDst.X = ClientSize.Width / 2 - 455;
+            Health1.rctDst.Y = ClientSize.Height - 150;
+            Health1.rctDst.Width = 300;
+            Health1.rctDst.Height = 37;
+            Health1.img = HealthImg;
+            Health1.rctSrc=new Rectangle(0,0, HealthImg.Width, HealthImg.Height);
+
+
+            Health2.X = ClientSize.Width / 2 - 470;
+            Health2.Y = ClientSize.Height - 150;
+            Health2.W = 300;
+            Health2.H = 37;
+            Health2.Vars.Add(0);
+            Health2.imgs.Add(new Bitmap("Images/hotbar/health2.png"));
+
+            
 
             Hunger.X = ClientSize.Width / 2 + 150;
             Hunger.Y = ClientSize.Height - 150;
@@ -444,13 +465,22 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
                 int y = yCurr - woodImage.Height + 100;
 
+                int imgdir = RR.Next(0, 2);
+                int Dir = 1;
+                if(imgdir==1)
+                {
+                    Dir = -1;
+                }
                 Enemy Zombie = new Enemy
                 {
                     X = x,
                     Y = yPos - hero.H,
                     W = hero.W,
                     H = hero.H,
-                    imgs = Groups[2].Animations[1].imgs,
+                   
+
+                    dir = Dir,
+                    imgs = Groups[2].Animations[imgdir].imgs,
                     health = 200,
                     fullHealth = 200,
 
@@ -584,6 +614,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
         private void T_Tick(object sender, EventArgs e)
         {
+            if (hero.health <= 0)
+                return;
             if (ctTimer % 1 == 0)
             {
                 if (rctSrc.X + rctSrc.Width < BackImg.Width)
@@ -603,7 +635,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
 
                 //bullets move 
-                //bullets move 
+
                 for (int i = 0; i < Bullets.Count; i++)
                 {
                     Bullet BulletsTrav = Bullets[i];
@@ -619,9 +651,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                             BulletsTrav.Y + BulletsTrav.H > enemy.Y)
                         {
                             // Bullet hits the enemy
-                            Text = "" + BulletsTrav.X +"  "+ enemy.X;
+                            Text = "" + BulletsTrav.X + "  " + enemy.X;
                             enemy.health -= 30;
-                            if(enemy.health<=0)
+                            if (enemy.health <= 0)
                             {
                                 Enemies.RemoveAt(j);
                             }
@@ -633,6 +665,33 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     }
                 }
 
+                
+
+
+            }
+
+            if(ctTimer%5==0)
+            {
+                //enemie move
+                for (int i = 0; i < Enemies.Count; i++)
+                {
+                    Enemy EnemyTrav = Enemies[i];
+                    EnemyTrav.X += EnemyTrav.dir * EnemyTrav.speed;
+                    EnemyTrav.iframe++;
+                    if (hero.X < EnemyTrav.X + EnemyTrav.W &&
+                        hero.X + hero.W > EnemyTrav.X &&
+                        hero.Y < EnemyTrav.Y + EnemyTrav.H &&
+                        hero.Y + hero.H > EnemyTrav.Y)
+                    {
+                        EnemyTrav.dir = 0;
+                        // Enemy touches the hero
+                        hero.health -= 3;
+                        Health1.rctSrc.Width -= 10;
+                        Health1.rctDst.Width -= 11;
+                    }
+                    else
+                        EnemyTrav.dir = 1;
+                }
             }
 
             for (int i = 0; i < droppedItems.Count; i++)
@@ -1118,7 +1177,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             for (int i = 0; i < Enemies.Count; i++)
             {
                 Enemy enemyTrav = Enemies[i];
-                g.DrawImage(enemyTrav.imgs[enemyTrav.iframe], (enemyTrav.X - viewRect.X) * camera.ZoomFactor, (enemyTrav.Y - viewRect.Y) * camera.ZoomFactor, enemyTrav.W * camera.ZoomFactor, enemyTrav.H * camera.ZoomFactor);
+                g.DrawImage(enemyTrav.imgs[enemyTrav.iframe% enemyTrav.imgs.Count], (enemyTrav.X - viewRect.X) * camera.ZoomFactor, (enemyTrav.Y - viewRect.Y) * camera.ZoomFactor, enemyTrav.W * camera.ZoomFactor, enemyTrav.H * camera.ZoomFactor);
 
             }
 
@@ -1150,10 +1209,10 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     g.DrawImage(HotBarItemsBorder.imgs[0], HotBarItemsBorder.X + HotBarItemsBorder.W * i, HotBarItemsBorder.Y - 20, HotBarItemsBorder.W + 20, HotBarItemsBorder.H + 20);
             }
             
-                g.DrawImage(Health.imgs[0], Health.X+ 15, Health.Y, Health.W, Health.H);
+            g.DrawImage(Health2.imgs[0], Health2.X+ 15, Health2.Y, Health2.W, Health2.H);
+            g.DrawImage(Health1.img, Health1.rctDst, Health1.rctSrc, GraphicsUnit.Pixel);
             
-          
-                g.DrawImage(Hunger.imgs[0], Hunger.X+ 15, Hunger.Y, Hunger.W, Hunger.H);
+            g.DrawImage(Hunger.imgs[0], Hunger.X+ 15, Hunger.Y, Hunger.W, Hunger.H);
             
 
             for (int i = 0; i < hero.Inventory.items.Count && i < 9; i++)
