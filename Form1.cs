@@ -453,7 +453,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             int blockHeight = 60; // Set your block height
             int columns = ClientSize.Width / blockWidth;
             //int rows = 2; // Number of rows of blocks
-            yPos = ClientSize.Height - blockHeight  + 1000 - 30*60; 
+            int UpperYPos = ClientSize.Height - blockHeight  + 1000 - 30*60; 
 
            
                 List<Block> rowBlocks = new List<Block>();
@@ -461,7 +461,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 {
                     Block blockPnn = new Block();
                     blockPnn.X = j * blockWidth;
-                    blockPnn.Y = yPos + (  blockHeight);
+                    blockPnn.Y = UpperYPos + (  blockHeight);
                     blockPnn.W = blockWidth;
                     blockPnn.H = blockHeight;
 
@@ -482,7 +482,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
         void CreateZombie()
         {
-            int yCurr = ClientSize.Height  -1000;
             int zombieCount = 3; // Number of trees to create
             int blockWidth = 60; // Ensure this matches your block width
             
@@ -508,7 +507,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
                 existingTreePositions.Add(x);
 
-                int y = yCurr - woodImage.Height + 100;
+          
 
                 int imgdir = RR.Next(0, 2);
                 int Dir = 1;
