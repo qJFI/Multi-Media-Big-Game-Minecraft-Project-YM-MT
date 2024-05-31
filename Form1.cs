@@ -1420,7 +1420,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
             Groups[3].Animations.Add(blood);
             Animation zombieblood = new Animation();
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 14; i++)
             {
                 zombieblood.imgs.Add(new Bitmap("Images/zombieblood/blood (" + (i + 1) + ").png"));
             }
