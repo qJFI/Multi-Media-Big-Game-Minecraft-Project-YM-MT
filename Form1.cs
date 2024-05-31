@@ -688,8 +688,11 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         Health1.rctSrc.Width -= 10;
                         Health1.rctDst.Width -= 11;
                     }
-                    else
+                    else if (EnemyTrav.dir == 0)
+                    {
                         EnemyTrav.dir = 1;
+                        EnemyTrav.imgs = Groups[2].Animations[0].imgs;
+                    }
                 }
             }
 
