@@ -892,7 +892,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     if( HotBarItemsBorder.Vars[0] == 0)
                     {
                        Bullet bulletPnn = new Bullet();
-                        bulletPnn.X = hero.X + hero.W -30;
+                        bulletPnn.X = hero.X + hero.W -50;
                         bulletPnn.Y = hero.Y+30 ;
                         bulletPnn.W = 40;
                         bulletPnn.H = 40;
@@ -905,12 +905,40 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         else
                         {
                             bulletPnn.dir = -1;
-                            bulletPnn.X -= hero.W-20;
+                            bulletPnn.X -= hero.W - 60;
                             bulletPnn.img = new Bitmap("Images/bullet2.png");
                         }
                         bulletPnn.speed = 20;
                         
                         Bullets.Add (bulletPnn);
+                    }
+                    break;
+                case Keys.G:
+                    if (HotBarItemsBorder.Vars[0] == 0)
+                    {
+                        for (int i = 0; i < 2; i++)
+                        {
+                            Bullet bulletPnn = new Bullet();
+                            bulletPnn.X = hero.X + hero.W - 50 + i*40;
+                            bulletPnn.Y = hero.Y + 30;
+                            bulletPnn.W = 40;
+                            bulletPnn.H = 40;
+                            bulletPnn.tpye = 0; //normal bullet  1-> double 2-> for arrow if made 
+                            if (hero.dir == 1)
+                            {
+                                bulletPnn.dir = 1;
+                                bulletPnn.img = new Bitmap("Images/bullet1.png");
+                            }
+                            else
+                            {
+                                bulletPnn.dir = -1;
+                                bulletPnn.X -= hero.W - 20;
+                                bulletPnn.img = new Bitmap("Images/bullet2.png");
+                            }
+                            bulletPnn.speed = 20;
+
+                            Bullets.Add(bulletPnn);
+                        }
                     }
                     break;
 
