@@ -379,6 +379,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
             //Zombies
             CreateZombie();
+
+
+            CreateUpper();
         }
 
         void UpdateHealth(int newValue)  // we will use this function when we add fall damage(fel a8lb msh hy7sl xD) or zombies
@@ -442,6 +445,40 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             // Adjust hero position to be on top of the grass blocks
             hero.Y = yPos - hero.H + 10;
         }
+
+
+        void CreateUpper()
+        {
+            int blockWidth = 60; // Set your block width
+            int blockHeight = 60; // Set your block height
+            int columns = ClientSize.Width / blockWidth;
+            //int rows = 2; // Number of rows of blocks
+            yPos = ClientSize.Height - blockHeight  + 1000 - 30*60; 
+
+           
+                List<Block> rowBlocks = new List<Block>();
+                for (int j = 0; j < columns + 30; j++)
+                {
+                    Block blockPnn = new Block();
+                    blockPnn.X = j * blockWidth;
+                    blockPnn.Y = yPos + (  blockHeight);
+                    blockPnn.W = blockWidth;
+                    blockPnn.H = blockHeight;
+
+                   
+                        blockPnn.Img = Groups[1].Animations[0].imgs[0]; // Always grass for the first 5 rows from the bottom
+                        blockPnn.ID = 0;
+                    
+
+                    rowBlocks.Add(blockPnn);
+                }
+                blocks2D.Add(rowBlocks);
+            
+
+        }
+
+
+
 
         void CreateZombie()
         {
