@@ -21,6 +21,14 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int stTime, endTime;
        
     }
+
+
+    public class ladder
+    {
+        public int X, Y, W, H;
+        public Bitmap img;
+       
+    }
     public class cAdvImg {
 
         public Rectangle rctSrc;
@@ -377,8 +385,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             // Tree
             CreateTrees();
 
-            //Zombies
-            CreateZombie();
+           /* //Zombies
+            CreateZombie();*/
 
 
             CreateUpper();
@@ -426,7 +434,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         if (isStone == 0)
                         {
                             
-                            int randomBlock = RR.Next(4, Groups[1].Animations[0].imgs.Count);
+                            int randomBlock = RR.Next(4, 12);
                             blockPnn.ID = randomBlock;
                             blockPnn.Img = Groups[1].Animations[0].imgs[randomBlock];
                         }
@@ -1417,6 +1425,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Ruby.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Sapphire.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Iron.png")); // Last Block image  (11)
+         
 
             Groups[1].Animations.Add(staticBlocks);
 
