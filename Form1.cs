@@ -5,14 +5,23 @@ using System.Windows.Forms;
 
 namespace Multi_Media_Minecraft_Project_YM_MT
 {
+    /*
+        public class OneImageBasicActor
+        {
+            public int X, Y, W, H;
+            public Bitmap img;
+            public List<int> Vars = new List<int>();
+        }*/
 
-   /* public class OneImageBasicActor 
+
+    public class Bullet
     {
         public int X, Y, W, H;
-        public Bitmap img = new Bitmap();
-        public int iframe = 0;
-        public List<int> Vars = new List<int>();
-    }*/
+        public Bitmap img;
+        public int tpye = 0;
+        public int speed;
+        public int dir;
+    }
     public class BasicActor //actors that isn't responsive no Zoom or Cam !
     {
         public int X, Y, W, H;
@@ -47,6 +56,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int ID;
         public int iframe = 0;
     }
+
+
+  
 
     public class InventoryItem
     {
@@ -194,6 +206,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         Bitmap BorderImg = new Bitmap("Images/Border.png");
         Bitmap SunImg = new Bitmap("Images/sun.png");
         Bitmap HeroImg = new Bitmap("Images/hero1.png");
+        Bitmap BulletImg = new Bitmap("Images/bullet.png");
         Rectangle rctSrc, rctDst;
         Hero hero;
         Hero Zombie;
@@ -204,7 +217,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         BasicActor Inventory = new BasicActor();
         BasicActor Health = new BasicActor();
         BasicActor Hunger = new BasicActor();
-        List<BasicActor> SingleActors = new List<BasicActor>();
+   
 
         int iframe = 0;
         int breakingI = -1, breakingJ = -1;
@@ -224,8 +237,11 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         int ey = -1;
         List<List<Block>> blocks2D = new List<List<Block>>(); // 2D list for blocks
         List<InventoryItem> droppedItems = new List<InventoryItem>();
+        List<BasicActor> SingleActors = new List<BasicActor>();
         List<Group> Groups = new List<Group>();
         List<Enemy> Enemies = new List<Enemy>();
+        List<Bullet> Bullets = new List<Bullet>();
+        //List<InventoryItem> heroTools = new List<InventoryItem>();
         bool isBroken = false;
 
         Random RR = new Random();
@@ -319,6 +335,12 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Hunger.Vars.Add(0);
             Hunger.imgs.Add(new Bitmap("Images/hotbar/hunger0.png"));
 
+            //Gun
+            Bitmap gunImage = new Bitmap("Images/heroTools/gun.png");
+       
+            InventoryItem gun = new InventoryItem(HotBarItemsBorder.X + 30, HotBarItemsBorder.Y,60,60,gunImage,20);
+            hero.Inventory.AddItem (gun);
+       
 
             // Create random biome blocks
             CreateRandomBiomeBlocks();
@@ -579,6 +601,38 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     Sun.X -= 3 * Sun.Vars[2];
                     Sun.Y += Sun.Vars[2];
                 }
+
+                //bullets move 
+                //bullets move 
+                for (int i = 0; i < Bullets.Count; i++)
+                {
+                    Bullet BulletsTrav = Bullets[i];
+                    BulletsTrav.X += BulletsTrav.dir * BulletsTrav.speed;
+
+                    // Check if bullet hits any enemy
+                    for (int j = 0; j < Enemies.Count; j++)
+                    {
+                        Enemy enemy = Enemies[j];
+                        if (BulletsTrav.X < enemy.X + enemy.W &&
+                            BulletsTrav.X + BulletsTrav.W > enemy.X &&
+                            BulletsTrav.Y < enemy.Y + enemy.H &&
+                            BulletsTrav.Y + BulletsTrav.H > enemy.Y)
+                        {
+                            // Bullet hits the enemy
+                            Text = "" + BulletsTrav.X +"  "+ enemy.X;
+                            enemy.health -= 30;
+                            if(enemy.health<=0)
+                            {
+                                Enemies.RemoveAt(j);
+                            }
+                            // Remove the bullet after it hits the enemy
+                            Bullets.RemoveAt(i);
+                            i--;
+                            break;
+                        }
+                    }
+                }
+
             }
 
             for (int i = 0; i < droppedItems.Count; i++)
@@ -773,6 +827,29 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 case Keys.E:
                     Inventory.Vars[0] *= -1;
                     break;
+                case Keys.F:
+                    if( HotBarItemsBorder.Vars[0] == 0)
+                    {
+                       Bullet bulletPnn = new Bullet();
+                        bulletPnn.X = hero.X + hero.W -30;
+                        bulletPnn.Y = hero.Y+30 ;
+                        bulletPnn.W = 40;
+                        bulletPnn.H = 40;
+                        bulletPnn.tpye = 0; //normal bullet  1-> double 2-> for arrow if made 
+                        if(hero.dir ==1 )
+                        {
+                            bulletPnn.dir= 1;
+                        }
+                        else
+                        {
+                            bulletPnn.dir = -1;
+                            bulletPnn.X -= hero.W-20;
+                        }
+                        bulletPnn.speed = 20;
+                        bulletPnn.img = BulletImg;
+                        Bullets.Add (bulletPnn);
+                    }
+                    break;
 
             }
         }
@@ -784,6 +861,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         }
         private void PlaceBlock(int x, int y, int blockID)
         {
+            if(blockID>=20)
+            { return; }
             int blockWidth = 60; // Ensure this matches your block width
             int blockHeight = 60; // Ensure this matches your block height
 
@@ -912,13 +991,13 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     break;
                     // Right mouse button logic (Build logic)
                 case MouseButtons.XButton1:  //The bonus button 1
-                    Text = "Testo1";
+                    HotBarItemsBorder.Vars[0] = 2;
                     break;
                 case MouseButtons.XButton2:  //The bonus button 2
-                    Text = "Testo2";
+                    HotBarItemsBorder.Vars[0] = 4;
                     break;
                 case MouseButtons.Middle:  //The bonus button 2
-                    Text = "Testo3";
+                    HotBarItemsBorder.Vars[0] = 0;
                     break;
             }
         }
@@ -942,7 +1021,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                             (e.Y / camera.ZoomFactor) + viewRect.Y >= block.Y)
                         {
                             isBreaking = 0;
-                            Text = "works";
+                           
                             breakingI = i; //for removing the block
                             breakingJ = j; //for removing the block 
                             breaking = new AnimatedBlock();
@@ -1033,6 +1112,31 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
 
             // Draw dropped items using a for loop without var
+
+
+
+            for (int i = 0; i < Enemies.Count; i++)
+            {
+                Enemy enemyTrav = Enemies[i];
+                g.DrawImage(enemyTrav.imgs[enemyTrav.iframe], (enemyTrav.X - viewRect.X) * camera.ZoomFactor, (enemyTrav.Y - viewRect.Y) * camera.ZoomFactor, enemyTrav.W * camera.ZoomFactor, enemyTrav.H * camera.ZoomFactor);
+
+            }
+
+
+            //bullets
+
+            for(int i=0; i < Bullets.Count;i++)
+            {
+                Bullet BulletsTrav = Bullets[i];
+                g.DrawImage(BulletsTrav.img,
+                            (BulletsTrav.X - viewRect.X) * camera.ZoomFactor,
+                            (BulletsTrav.Y - viewRect.Y) * camera.ZoomFactor,
+                            BulletsTrav.W * camera.ZoomFactor,
+                            BulletsTrav.H * camera.ZoomFactor);
+            }
+
+
+            //dont draw thing after this block just before
             for (int i = 0; i < droppedItems.Count; i++)
             {
                 InventoryItem droppedItem = droppedItems[i];
@@ -1069,13 +1173,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
-           
-            for (int i = 0; i < Enemies.Count; i++)
-            {
-                Enemy enemyTrav = Enemies[i];
-                g.DrawImage(enemyTrav.imgs[enemyTrav.iframe], (enemyTrav.X - viewRect.X) * camera.ZoomFactor, (enemyTrav.Y - viewRect.Y) * camera.ZoomFactor, enemyTrav.W * camera.ZoomFactor, enemyTrav.H * camera.ZoomFactor);
-               
-            }
+         
         }
 
         void ImagesReady() //this function to add the photos in the memory
