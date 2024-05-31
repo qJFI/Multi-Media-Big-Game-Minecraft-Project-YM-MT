@@ -670,6 +670,15 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                             // Bullet hits the enemy
                             Text = "" + BulletsTrav.X + "  " + enemy.X;
                             enemy.health -= 30;
+                            Effect pnnEffect = new Effect();
+                            pnnEffect.X = enemy.X;
+                            pnnEffect.Y = enemy.Y;
+                            pnnEffect.W = 100;
+                            pnnEffect.H = 100;
+                            pnnEffect.imgs = Groups[3].Animations[1].imgs; // Blood
+                            pnnEffect.stTime = ctTimer;
+                            pnnEffect.endTime = ctTimer + 7;
+                            Effects.Add(pnnEffect);
                             if (enemy.health <= 0)
                             {
                                 Enemies.RemoveAt(j);
@@ -687,7 +696,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
             }
 
-            if(ctTimer%50==0)
+            if(ctTimer%80==0)
             {
                 CreateZombie();
             }
@@ -1410,6 +1419,12 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 blood.imgs.Add(new Bitmap("Images/blood/blood (" + (i + 1) + ").png"));
             }
             Groups[3].Animations.Add(blood);
+            Animation zombieblood = new Animation();
+            for (int i = 0; i < 4; i++)
+            {
+                zombieblood.imgs.Add(new Bitmap("Images/zombieblood/blood (" + (i + 1) + ").png"));
+            }
+            Groups[3].Animations.Add(zombieblood);
 
 
         }
