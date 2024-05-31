@@ -214,7 +214,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         Bitmap BorderImg = new Bitmap("Images/Border.png");
         Bitmap SunImg = new Bitmap("Images/sun.png");
         Bitmap HeroImg = new Bitmap("Images/hero1.png");
-        Bitmap BulletImg = new Bitmap("Images/bullet.png");
         Rectangle rctSrc, rctDst;
         Hero hero;
         Hero Zombie;
@@ -898,14 +897,16 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         if(hero.dir ==1 )
                         {
                             bulletPnn.dir= 1;
+                            bulletPnn.img = new Bitmap("Images/bullet1.png");
                         }
                         else
                         {
                             bulletPnn.dir = -1;
                             bulletPnn.X -= hero.W-20;
+                            bulletPnn.img = new Bitmap("Images/bullet2.png");
                         }
                         bulletPnn.speed = 20;
-                        bulletPnn.img = BulletImg;
+                        
                         Bullets.Add (bulletPnn);
                     }
                     break;
