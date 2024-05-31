@@ -687,6 +687,11 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
             }
 
+            if(ctTimer%50==0)
+            {
+                CreateZombie();
+            }
+
             if(ctTimer%5==0)
             {
                 //enemie move
@@ -702,7 +707,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     {
                         EnemyTrav.dir = 0;
                         // Enemy touches the hero
-                        hero.health -= 3;
+                        hero.health -= 4;
                         Effect pnnEffect = new Effect();
                         pnnEffect.X = hero.X;
                         pnnEffect.Y = hero.Y;
@@ -712,8 +717,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         pnnEffect.stTime = ctTimer;
                         pnnEffect.endTime = ctTimer + 7;
                         Effects.Add(pnnEffect);
-                        Health1.rctSrc.Width -= 10;
-                        Health1.rctDst.Width -= 11;
+                        Health1.rctSrc.Width -= 11;
+                        Health1.rctDst.Width -= 12;
                     }
                     else if (EnemyTrav.dir == 0)
                     {
