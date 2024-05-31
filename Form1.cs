@@ -1414,7 +1414,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
             //effects 
             Animation blood = new Animation();
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 14; i++)
             {
                 blood.imgs.Add(new Bitmap("Images/blood/blood (" + (i + 1) + ").png"));
             }
