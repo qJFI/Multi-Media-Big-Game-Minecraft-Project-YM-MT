@@ -170,7 +170,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int speed = 20;
         public bool isJumping = false;
         public int jumpCt = 25;
-        public int health = 10000;
+        public int health = 100;
         
        
         public Inventory Inventory;
@@ -230,6 +230,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         Bitmap BackBiomeImg = new Bitmap("Images/biomeBackgrounds/birchForest.png");
         Bitmap BorderImg = new Bitmap("Images/Border.png");
         Bitmap SunImg = new Bitmap("Images/sun.png");
+        List<Block> ladderBlocks;
         Bitmap HeroImg = new Bitmap("Images/hero1.png");
         Rectangle rctSrc, rctDst;
         Hero hero;
@@ -388,9 +389,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             // Tree
             CreateTrees();
 
-           /* //Zombies
-            CreateZombie();*/
-
+            /* //Zombies
+             CreateZombie();*/
+           
 
             CreateUpper();
         }
@@ -408,6 +409,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             int columns = ClientSize.Width / blockWidth;
             int rows = 20; // Number of rows of blocks
             yPos = ClientSize.Height - blockHeight * rows + 1000; // Starting Y position of the bottom row
+
+
+            makeladder(960, yPos, Groups[1].Animations[1].imgs[0]);
 
             for (int i = 0; i < rows; i++)
             {
@@ -581,7 +585,28 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
         }
 
+        void makeladder(int baseX, int baseY, Bitmap ladderImage)
+        {
+           ladderBlocks = new List<Block>();
+            blocks2D.Add(ladderBlocks); //->20
+          
+            // tree of height 5 blocks
+            for (int i = 1; i < 11; i++)
+            {
+                Block woodBlock = new Block
+                {
+                    X = baseX,
+                    Y = baseY - (i * 60),
+                    W = 60,
+                    H = 60,
+                    Img = ladderImage,
+                    ID = 14,
+                    Z = 1
+                };
+                ladderBlocks.Add(woodBlock);
+            }
 
+        }
         void makeRandomTrees(int baseX, int baseY, Bitmap woodImage, Bitmap treeGrassImage)
         {
             List<Block> TreesBlocks;
@@ -937,6 +962,24 @@ namespace Multi_Media_Minecraft_Project_YM_MT
          
             return false;
         }
+
+
+        bool IsOnLadder()
+        {
+            for(int i=0;i<ladderBlocks.Count;i++)
+            {
+                Block block = ladderBlocks[i];
+                if (hero.X < block.X + block.W  &&
+            hero.X +hero.W  > block.X &&
+            hero.Y <= block.Y + block.H &&
+            hero.Y  +hero.H >= block.Y ) // Adjust 10 as per the gravity
+                {
+                    return true;
+                }
+            }
+          return false;
+        }
+            
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             int newHeroX;
@@ -967,17 +1010,28 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     }
                    
                     break;
-                case Keys.W:
+                //case Keys.W:
                 case Keys.Up:               //Jumping
                 case Keys.Space:
                     if (IsOnGround() && !hero.isJumping)
                     {
                         hero.isJumping = true;
                     }
+                    
 
+                    break;
+                case Keys.W:
+                    if (IsOnLadder())
+                    {
+                        hero.Y -= 50;
+                    }
                     break;
                 case Keys.S:
                 case Keys.Down:
+                    if (IsOnLadder())
+                    {
+                        hero.Y += 50;
+                    }
                     // hero crouch logic if needed
                     break;
                 case Keys.Z:      ///Zoom-In
@@ -1548,13 +1602,19 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Ruby.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Sapphire.png"));
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Iron.png")); // Last Block image  (11)
-         
+          
+            Animation otherBlocks = new Animation();
+            otherBlocks.imgs.Add(new Bitmap("Images/Blocks/ladder.png")); // Last Block image  (1) 
+
+
+
 
             Groups[1].Animations.Add(staticBlocks);
+            Groups[1].Animations.Add(otherBlocks);
 
             Animation blockBorders = new Animation();
             blockBorders.imgs.Add(new Bitmap("Images/Border.png"));
-            Groups[1].Animations.Add(staticBlocks);
+           
 
             Animation blockBreaking = new Animation();
             for (int i = 1; i < 6; i++)
