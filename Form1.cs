@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace Multi_Media_Minecraft_Project_YM_MT
 {
@@ -169,7 +170,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int speed = 20;
         public bool isJumping = false;
         public int jumpCt = 25;
-        public int health = 100;
+        public int health = 10000;
         
        
         public Inventory Inventory;
@@ -752,7 +753,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
             }
 
-            if((ctTimer+1)%80==0)
+            if((ctTimer)%100==0)
             {
                 CreateZombie();
             }
@@ -1049,51 +1050,63 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     }
                     location1.Y = hero.Y + 30;
                     location2.X = ex;
-                    location2.Y = ey;
+                    location2.Y = hero.Y + 30;
                     // Calculate the hitbox for the laser
                     int a  = (hero.X + hero.W);
                     int b = camera.GetViewRect().X + ex;
-                    int laserStartX, laserEndX;
+                    
+                    int laserStartX, laserEndX, laserStartY,laserEndY;
                     if (a<b)
                     {
                          laserStartX = a;
                         laserEndX = b;
+                      
                     }
                     else
                     {
 
                         laserStartX = b;
                         laserEndX = a;
+                     
+
 
                     }
                     int laserY = location1.Y;
-                    Text = " " + laserStartX + " : " + laserEndX + " : " + laserY;
-
+                   
+                   
+                   
                     for (int i = 0; i < Enemies.Count; i++)
                     {
                         Enemy enemy = Enemies[i];
-                      
 
+                        
                         // Calculate the hitbox for the enemy
-                        int enemyLeft = enemy.X;
-                        int enemyRight = enemy.X + enemy.W;
-                        int enemyTop = enemy.Y;
-                        int enemyBottom = enemy.Y + enemy.H;
-
+                 
+                       
+                        
                         // Check if the laser intersects with the enemy's hitbox
-                        if ((enemyLeft >= laserStartX && enemyRight-150 <= laserEndX) 
+                        if ((enemy.X >= laserStartX && enemy.X + enemy.W <= laserEndX) &&
+                               (laserY >= enemy.Y && laserY <= enemy.Y + enemy.H )
+
                          )
                         {
-                            //enemy.health -= 50; // Laser does more damage
-                            //if (enemy.health <= 0)
-                            //{
-                            Enemies.RemoveAt(i);
-                            i--;
-                            //}
+                            enemy.health -= 50; // Laser does more damage
+                            if (enemy.health <= 0)
+                            {
+                                Enemies.RemoveAt(i);
+                                i--;
+                            }
+                            Effect pnnEffect = new Effect();
+                            pnnEffect.X = enemy.X;
+                            pnnEffect.Y = enemy.Y;
+                            pnnEffect.W = 100;
+                            pnnEffect.H = 100;
+                            pnnEffect.imgs = Groups[3].Animations[1].imgs; // Blood
+                            pnnEffect.stTime = ctTimer;
+                            pnnEffect.endTime = ctTimer + 7;
+                            Effects.Add(pnnEffect);
                         }
-                        if (i == 0)
-                            Text = " " + laserStartX + " : " + laserEndX + " : " + laserY + " " + enemy.X + " : " + enemyTop + " : " + enemyBottom;
-
+                   
                     }
                     break;
 
