@@ -66,7 +66,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
     public class Block
     {
-        public int X, Y, W, H;
+        public int X, Y, W, H,Z=0;
         public Bitmap Img;
         public int ID; 
         public int ItemType;
@@ -599,7 +599,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     W = 60,
                     H = 60,
                     Img = woodImage,
-                    ID = 2
+                    ID = 2,
+                    Z = 1
                 };
                 blocks2D[20].Add(woodBlock);
             }
@@ -616,7 +617,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         W = 60,
                         H = 60,
                         Img = treeGrassImage,
-                        ID = 3
+                        ID = 3,
+                        Z = 1
                     };
                     blocks2D[20].Add(treeGrassBlock);
                 }
@@ -912,26 +914,58 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
             return false;
         }
-
+        private bool IsBlocked(int newX, int newY, int heroWidth, int heroHeight)
+        {
+            for (int i = 0; i < blocks2D.Count; i++)
+            {
+                List<Block> rowBlocks = blocks2D[i];
+                for (int j = 0; j < rowBlocks.Count; j++)
+                {
+                    Block block = rowBlocks[j];
+                   
+                    if (newX+50 < block.X + block.W &&
+                        newX + heroWidth-50 > block.X &&
+                        newY +50 < block.Y + block.H &&
+                        newY + heroHeight-50 > block.Y && 
+                        block.Z == 0)
+                    {
+                        return true;
+                    }
+                }
+               
+            }
+         
+            return false;
+        }
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
+            int newHeroX;
             switch (e.KeyCode)
             {
                 case Keys.D:
                 case Keys.Right:
-                    hero.isHeroStable = 10;
-                    hero.X += hero.speed;
-                    hero.iframe++;
-                    hero.imgs = Groups[0].Animations[2].imgs;
-                    hero.dir = 1;
+                    newHeroX = hero.X + hero.speed;
+                    if (!IsBlocked(newHeroX, hero.Y, hero.W, hero.H))
+                    {
+                        hero.isHeroStable = 10;
+                        hero.X += hero.speed;
+                        hero.iframe++;
+                        hero.imgs = Groups[0].Animations[2].imgs;
+                        hero.dir = 1;
+                    }
                     break;
                 case Keys.A:
                 case Keys.Left:
-                    hero.X -= hero.speed;
-                    hero.isHeroStable = 10;
-                    hero.iframe++;
-                    hero.imgs = Groups[0].Animations[3].imgs;
-                    hero.dir = -1;
+                     newHeroX = hero.X - hero.speed;
+                    if (!IsBlocked(newHeroX, hero.Y, hero.W, hero.H))
+                    {
+                        hero.X -= hero.speed;
+                        hero.isHeroStable = 10;
+                        hero.iframe++;
+                        hero.imgs = Groups[0].Animations[3].imgs;
+                        hero.dir = -1;
+                    }
+                   
                     break;
                 case Keys.W:
                 case Keys.Up:               //Jumping
