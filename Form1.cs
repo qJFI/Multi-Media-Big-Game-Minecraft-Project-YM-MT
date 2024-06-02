@@ -253,7 +253,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         int hungerValue = 10;
         int minuteCounter = 0;
         int yPos;
-
+        int laser = -1;
+        Point location1 = new Point(-1,-1);
+        Point location2 = new Point(-1,-1);
         int stX = 0, stY = 0;
         Timer t = new Timer();
         int ctTimer = 0;
@@ -735,12 +737,22 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     }
                 }
 
-                
+             
+                if (laser > 0)
+                {
+                   
+                        
+                        laser--;
+                    
+
+                }
+
+
 
 
             }
 
-            if(ctTimer%80==0)
+            if((ctTimer+1)%80==0)
             {
                 CreateZombie();
             }
@@ -927,6 +939,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     {
                         hero.isJumping = true;
                     }
+
                     break;
                 case Keys.S:
                 case Keys.Down:
@@ -1024,6 +1037,63 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
                             Bullets.Add(bulletPnn);
                         }
+                    }
+
+                    break;
+                case Keys.L:
+                    location1.X = (hero.X + hero.W);
+                    laser=5;
+                    if (ex<hero.X-camera.GetViewRect().X)
+                    {
+                        location1.X -= hero.W - 20; 
+                    }
+                    location1.Y = hero.Y + 30;
+                    location2.X = ex;
+                    location2.Y = ey;
+                    // Calculate the hitbox for the laser
+                    int a  = (hero.X + hero.W);
+                    int b = camera.GetViewRect().X + ex;
+                    int laserStartX, laserEndX;
+                    if (a<b)
+                    {
+                         laserStartX = a;
+                        laserEndX = b;
+                    }
+                    else
+                    {
+
+                        laserStartX = b;
+                        laserEndX = a;
+
+                    }
+                    int laserY = location1.Y;
+                    Text = " " + laserStartX + " : " + laserEndX + " : " + laserY;
+
+                    for (int i = 0; i < Enemies.Count; i++)
+                    {
+                        Enemy enemy = Enemies[i];
+                      
+
+                        // Calculate the hitbox for the enemy
+                        int enemyLeft = enemy.X;
+                        int enemyRight = enemy.X + enemy.W;
+                        int enemyTop = enemy.Y;
+                        int enemyBottom = enemy.Y + enemy.H;
+
+                        // Check if the laser intersects with the enemy's hitbox
+                        if ((enemyLeft >= laserStartX && enemyRight-150 <= laserEndX) 
+                         )
+                        {
+                            //enemy.health -= 50; // Laser does more damage
+                            //if (enemy.health <= 0)
+                            //{
+                            Enemies.RemoveAt(i);
+                            i--;
+                            //}
+                        }
+                        if (i == 0)
+                            Text = " " + laserStartX + " : " + laserEndX + " : " + laserY + " " + enemy.X + " : " + enemyTop + " : " + enemyBottom;
+
                     }
                     break;
 
@@ -1320,7 +1390,11 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                             EffectsTrav.W * camera.ZoomFactor,
                             EffectsTrav.H * camera.ZoomFactor);
             }
-
+            if (laser >0)
+            {
+                Pen P = new Pen(Color.Red, 5);
+                g.DrawLine(P, (location1.X - viewRect.X) * camera.ZoomFactor, (location1.Y - viewRect.Y) * camera.ZoomFactor, location2.X, location2.Y);
+            }
 
             //dont draw thing after this block just before
             for (int i = 0; i < droppedItems.Count; i++)
@@ -1358,6 +1432,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     g.DrawString(hero.Inventory.items[i].quantity.ToString(), new Font("Arial", 12, FontStyle.Bold), Brushes.White, cX, cY);
                 }
             }
+
+           
 
          
         }
