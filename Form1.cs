@@ -80,9 +80,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int iframe = 0;
     }
 
-
-  
-
     public class InventoryItem
     {
         public int X, Y, W, H;
@@ -231,6 +228,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         Bitmap BorderImg = new Bitmap("Images/Border.png");
         Bitmap SunImg = new Bitmap("Images/sun.png");
         List<Block> ladderBlocks;
+        List<Block> ElevatorBlocks;
         Bitmap HeroImg = new Bitmap("Images/hero1.png");
         Rectangle rctSrc, rctDst;
         Hero hero;
@@ -272,7 +270,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         List<Effect> Effects = new List<Effect>();
         //List<InventoryItem> heroTools = new List<InventoryItem>();
         bool isBroken = false;
-
+        bool onElev = false;
+        bool elevatorMovingUp = false;
+        bool elevatorMovingDown = false;
         Random RR = new Random();
         Camera camera;
 
@@ -412,6 +412,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
 
             makeladder(960, yPos, Groups[1].Animations[1].imgs[0]);
+            makeElevator(200, yPos, Groups[1].Animations[1].imgs[1]);
 
             for (int i = 0; i < rows; i++)
             {
@@ -440,7 +441,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
                         if (isStone == 0)
                         {
-                            
                             int randomBlock = RR.Next(4, 12);
                             blockPnn.ID = randomBlock;
                             blockPnn.Img = Groups[1].Animations[0].imgs[randomBlock];
@@ -461,7 +461,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             hero.Y = yPos - hero.H + 10;
         }
 
-
         void CreateUpper()
         {
             int blockWidth = 60; // Set your block width
@@ -470,35 +469,27 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             //int rows = 2; // Number of rows of blocks
             int UpperYPos = ClientSize.Height - blockHeight  + 1000 - 30*60; 
 
-           
-                List<Block> rowBlocks = new List<Block>();
-                for (int j = 0; j < columns + 30; j++)
-                {
-                    Block blockPnn = new Block();
-                    blockPnn.X = j * blockWidth;
-                    blockPnn.Y = UpperYPos + (  blockHeight);
-                    blockPnn.W = blockWidth;
-                    blockPnn.H = blockHeight;
+            List<Block> rowBlocks = new List<Block>();
+            for (int j = 0; j < columns + 30; j++)
+            {
+                Block blockPnn = new Block();
+                blockPnn.X = j * blockWidth;
+                blockPnn.Y = UpperYPos + (blockHeight);
+                blockPnn.W = blockWidth;
+                blockPnn.H = blockHeight;
 
-                   
-                        blockPnn.Img = Groups[1].Animations[0].imgs[0]; // Always grass for the first 5 rows from the bottom
-                        blockPnn.ID = 0;
-                    
+                blockPnn.Img = Groups[1].Animations[0].imgs[0]; // Always grass for the first 5 rows from the bottom
+                blockPnn.ID = 0;
 
-                    rowBlocks.Add(blockPnn);
-                }
-                blocks2D.Add(rowBlocks);
-            
-
+                rowBlocks.Add(blockPnn);
+            }
+            blocks2D.Add(rowBlocks);
         }
-
-
-
 
         void CreateZombie()
         {
-            int zombieCount = 3; // Number of trees to create
-            int blockWidth = 60; // Ensure this matches your block width
+            int zombieCount = 3; // Number of zombies to create
+            int blockWidth = 60;
             
             Bitmap woodImage = Groups[1].Animations[0].imgs[2]; // Wood image from staticBlock
             List<int> existingTreePositions = new List<int>();
@@ -522,8 +513,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
                 existingTreePositions.Add(x);
 
-          
-
                 int imgdir = RR.Next(0, 2);
                 int Dir = 1;
                 if(imgdir==1)
@@ -542,19 +531,16 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     imgs = Groups[2].Animations[imgdir].imgs,
                     health = 200,
                     fullHealth = 200,
-
-
                 };
                 Enemies.Add(Zombie);
             }
         }
 
-
         void CreateTrees()
         {
             int yCurr = ClientSize.Height - 60 * 10 + 400;
             int treeCount = 3; // Number of trees to create
-            int blockWidth = 60; // Ensure this matches your block width
+            int blockWidth = 60;
            
             Bitmap woodImage = Groups[1].Animations[0].imgs[2]; // Wood image from staticBlocks
             Bitmap treeGrassImage = Groups[1].Animations[0].imgs[3]; // Tree grass image from staticBlocks  
@@ -593,7 +579,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             // tree of height 5 blocks
             for (int i = 1; i < 11; i++)
             {
-                Block woodBlock = new Block
+                Block ladderBlock = new Block
                 {
                     X = baseX,
                     Y = baseY - (i * 60),
@@ -603,7 +589,33 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     ID = 14,
                     Z = 1
                 };
-                ladderBlocks.Add(woodBlock);
+                ladderBlocks.Add(ladderBlock);
+            }
+
+        }
+        void makeElevator(int baseX, int baseY, Bitmap ElevatorImage)
+        {
+            ElevatorBlocks = new List<Block>();
+            blocks2D.Add(ElevatorBlocks); //->20
+
+            
+            for (int i = 0; i < 3; i++)
+            {
+                Block Elevator = new Block
+                {
+                    X = baseX + (i * 60),
+                    Y = baseY - 50,
+                    W = 60,
+                    H = 60,
+                    Img = ElevatorImage,
+                    ID = 14,
+                    Z = 1
+                };
+                ElevatorBlocks.Add(Elevator);
+
+                this.Text = ("" + Elevator.X + ", " + Elevator.Y + ", " + hero.X);
+
+                
             }
 
         }
@@ -694,6 +706,14 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Hunger.imgs[0] = new Bitmap("Images/hotbar/hunger" + hungerValue + ".png");
         }
 
+        private void MoveElevator(int direction)
+        {
+            for (int i = 0; i < ElevatorBlocks.Count; i++)
+            {
+                ElevatorBlocks[i].Y += direction * 15;
+            }
+        }
+
         private void T_Tick(object sender, EventArgs e)
         {
             if (hero.health <= 0)
@@ -767,17 +787,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
              
                 if (laser > 0)
-                {
-                   
-                        
-                        laser--;
-                    
-
+                {   
+                    laser--;
                 }
-
-
-
-
             }
 
             if((ctTimer)%100==0)
@@ -855,6 +867,32 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 if (!IsOnGround())
                 {
                     hero.Y += 15; // gravity
+                }
+            }
+
+            if (IsOnElev() && !elevatorMovingUp && !elevatorMovingDown)
+            {
+                elevatorMovingUp = true;
+            }
+
+            if (elevatorMovingUp)
+            {
+                int ElevLimit = ClientSize.Height - 60 + 1000 - 30 * 60;
+                MoveElevator(-1);
+                if (ElevatorBlocks[0].Y <= ElevLimit)
+                {
+                    elevatorMovingUp = false;
+                    hero.X += 120;
+                    elevatorMovingDown = true;
+                }
+            }
+
+            if (elevatorMovingDown)
+            {
+                MoveElevator(1);
+                if (ElevatorBlocks[0].Y >= yPos - 50)
+                {
+                    elevatorMovingDown = false;
                 }
             }
 
@@ -972,14 +1010,30 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 if (hero.X < block.X + block.W  &&
             hero.X +hero.W  > block.X &&
             hero.Y <= block.Y + block.H &&
-            hero.Y  +hero.H >= block.Y ) // Adjust 10 as per the gravity
+            hero.Y  +hero.H >= block.Y )
                 {
                     return true;
                 }
             }
           return false;
         }
-            
+
+        bool IsOnElev()
+        {
+            for (int i = 0; i < ElevatorBlocks.Count; i++)
+            {
+                Block block = ElevatorBlocks[i];
+                if (hero.X + 50 < block.X + block.W &&
+            hero.X + 50 + hero.W > block.X &&
+            hero.Y <= block.Y + block.H &&
+            hero.Y + hero.H >= block.Y)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             int newHeroX;
@@ -1025,6 +1079,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     {
                         hero.Y -= 50;
                     }
+                   
                     break;
                 case Keys.S:
                 case Keys.Down:
@@ -1032,6 +1087,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     {
                         hero.Y += 50;
                     }
+                    
                     // hero crouch logic if needed
                     break;
                 case Keys.Z:      ///Zoom-In
@@ -1458,9 +1514,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                             breaking.H * camera.ZoomFactor);
             }
 
-            // Draw dropped items using a for loop without var
-
-
 
             for (int i = 0; i < Enemies.Count; i++)
             {
@@ -1533,10 +1586,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     g.DrawString(hero.Inventory.items[i].quantity.ToString(), new Font("Arial", 12, FontStyle.Bold), Brushes.White, cX, cY);
                 }
             }
-
-           
-
-         
         }
 
         void ImagesReady() //this function to add the photos in the memory
@@ -1604,10 +1653,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Iron.png")); // Last Block image  (11)
           
             Animation otherBlocks = new Animation();
-            otherBlocks.imgs.Add(new Bitmap("Images/Blocks/ladder.png")); // Last Block image  (1) 
-
-
-
+            otherBlocks.imgs.Add(new Bitmap("Images/Blocks/ladder.png")); 
+            otherBlocks.imgs.Add(new Bitmap("Images/Blocks/elevator.png"));  // Last Block image  (1) 
 
             Groups[1].Animations.Add(staticBlocks);
             Groups[1].Animations.Add(otherBlocks);
