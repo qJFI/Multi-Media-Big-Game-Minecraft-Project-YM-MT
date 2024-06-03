@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
@@ -13,6 +14,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             public Bitmap img;
             public List<int> Vars = new List<int>();
         }
+
 
     public class Effect
     {
@@ -89,6 +91,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int itemID;
         public int ItemType;
         public int quantity=0;
+        public int healthIncrease = 0; 
+        public int hungerIncrease = 0;  
 
         public InventoryItem(int x, int y, int w, int h, Bitmap img,  int id)
         {
@@ -133,25 +137,23 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
         public void RemoveItem(int itemID, int quantity)
         {
-            // find item index
-            int index = -1;
             for (int i = 0; i < items.Count; i++)
             {
                 if (items[i].itemID == itemID)
                 {
-                    index = i;
+                    if (items[i].quantity > quantity)
+                    {
+                        items[i].quantity -= quantity;
+                    }
+                    else
+                    {
+                        items.RemoveAt(i);
+                    }
                     break;
                 }
             }
-
-            // if the item is in inventory decrease quantity
-            if (index != -1)
-            {
-                items.RemoveAt(index);
-            }
         }
 
-      
         public void Clear()
         {
             items.Clear();
@@ -170,14 +172,16 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public bool isJumping = false;
         public int jumpCt = 25;
         public int health = 100;
-        
-       
+        public int hunger = 10; 
+
+
         public Inventory Inventory;
 
         public Hero()
         {
             Inventory = new Inventory();
         }
+     
     }
     public class Enemy
     {
@@ -233,11 +237,13 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         List<Block> ElevatorBlocks;
         Bitmap HeroImg = new Bitmap("Images/hero1.png");
         Rectangle rctSrc, rctDst;
+        Block Crafting = new Block();
         Hero hero;
         List<Block> jailBlocks;
         AnimatedBlock breaking = null;
         Bitmap breakedImg = null;
         BasicActor Sun; //in single actor
+        
         BasicActor HotBarItemsBorder = new BasicActor();
         BasicActor Inventory = new BasicActor();
         cAdvImg Health1 = new cAdvImg();
@@ -253,7 +259,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         int zoomRange = 10;
         bool isWin = false;
         int healthValue = 100;
-        int hungerValue = 10;
+       
      
         int yPos;
         int laser = -1;
@@ -283,6 +289,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public Form1()
         {
             this.WindowState = FormWindowState.Maximized;
+            Text = " Hint 5 Diamond";
             Load += Form1_Load;
             Paint += Form1_Paint;
             MouseMove += Form1_MouseMove;
@@ -387,7 +394,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             healthValue = newValue;
         }
 
-       
+        
         void CreateRandomBiomeBlocks()
         {
             int blockWidth = 60; // Set your block width
@@ -440,6 +447,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                 blockPnn.ID = 4;
                                 blockPnn.Img = Groups[1].Animations[0].imgs[4];
                             }
+                           
                         }
 
                         rowBlocks.Add(blockPnn);
@@ -447,6 +455,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
                 blocks2D.Add(rowBlocks);
             }
+            
            jailBlocks = new List<Block>();
             alex.W = hero.W;
             alex.H = hero.H;
@@ -462,10 +471,17 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     blockPnn.Y = alex.Y-80+ (i * blockHeight);
                     blockPnn.W = blockWidth;
                     blockPnn.H = blockHeight;
+                    blockPnn.ItemType = 15;
                     blockPnn.Img = Groups[1].Animations[1].imgs[2];
                     jailBlocks.Add(blockPnn);
                 }
             }
+            Crafting.X = alex.X - 400;
+            Crafting.Y = alex.Y + alex.H-50;
+            Crafting.W = 60;
+            Crafting.H = 60;
+            Crafting.Img = Groups[1].Animations[1].imgs[3];
+            jailBlocks.Add(Crafting);
             blocks2D.Add(jailBlocks);
             // Adjust hero position to be on top of the grass blocks
             hero.Y = yPos - hero.H + 10;
@@ -491,9 +507,18 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             InventoryItem gun = new InventoryItem(HotBarItemsBorder.X + 30, HotBarItemsBorder.Y, 60, 60, gunImage, 20);
           
             chest1.Items.Add(gun);
+         
+            Bitmap steakImage = new Bitmap("Images/steak.png");
+            InventoryItem steak = new InventoryItem(HotBarItemsBorder.X + 30, HotBarItemsBorder.Y, 60, 60, steakImage, 30)
+            {
+                healthIncrease = 12,
+                hungerIncrease = 12,
+                quantity = 64
+            };
+            chest1.Items.Add(steak);
+
             Chests.Add(chest1);
 
-       
 
             List<Block> rowBlocks = new List<Block>();
             for (int j = 0; j < columns + 30; j++)
@@ -770,9 +795,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         {
             int totalFrames = 11;
             int elapsedMinutes = ctTimer / 60;
-            hungerValue = elapsedMinutes % totalFrames;
+            hero.hunger-- ;
 
-            Hunger.imgs[0] = new Bitmap("Images/hotbar/hunger" + hungerValue + ".png");
+            Hunger.imgs[0] = new Bitmap("Images/hotbar/hunger" +(10- hero.hunger) + ".png");
         }
 
         private void MoveElevator(int direction)
@@ -1061,7 +1086,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
-            if (breaking != null && isBreaking == 1)
+            if (breaking != null && isBreaking == 1 && breaking.ID != 15)
             {
                 if (ctTimer % 2 == 0 && breaking.iframe < 5)
                 {
@@ -1295,11 +1320,28 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 case Keys.Z:      ///Zoom-In
                     Zoom(1);
                     break;
-                case Keys.C:     //Zoom-Up
+                case Keys.X:     //Zoom-Up
                     Zoom(2);
                     break;
+                case Keys.C:     //Zoom-Up
+                  
+                    // Get the blockID from the hotbar selection
+                    int itemIndex = HotBarItemsBorder.Vars[0];
+                    Text += itemIndex;
+                    if (itemIndex < hero.Inventory.items.Count)
+                    {
+                        if (hero.Inventory.items[itemIndex].itemID == 6 && hero.Inventory.items[itemIndex].quantity >= 5)
+                        {
+                            hero.Inventory.items.RemoveAt(itemIndex);
+                            //make pickaxe
+                            Bitmap picAxe = new Bitmap("Images/pickaxe.png");
+                            InventoryItem item = new InventoryItem(HotBarItemsBorder.X + 30, HotBarItemsBorder.Y, 60, 60, picAxe, 21);
+                            hero.Inventory.AddItem(item);
+                        }
+                    }
+                    break;
 
-                    //Hotbar ->
+                //Hotbar ->
                 case Keys.D1:
                     HotBarItemsBorder.Vars[0] = 0;
                     break;
@@ -1330,8 +1372,41 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 case Keys.D0:
                     HotBarItemsBorder.Vars[0] = 9;
                     break;
-                case Keys.E:
+                case Keys.R:
                     Inventory.Vars[0] *= -1;
+                    break;
+                case Keys.E:
+                      int foodIndex = HotBarItemsBorder.Vars[0];
+                    if (foodIndex < hero.Inventory.items.Count)
+                    {
+                        InventoryItem foodItem = hero.Inventory.items[foodIndex];
+                        if (foodItem.healthIncrease > 0 || foodItem.hungerIncrease > 0)
+                        {
+
+                            hero.health += foodItem.healthIncrease;
+                            hero.hunger += foodItem.hungerIncrease;
+                            
+                            if (hero.health > 100)
+                                hero.health = 100;
+                            
+                            if(hero.hunger > 10)
+                                hero.hunger = 10;
+                            Hunger.imgs[0] = new Bitmap("Images/hotbar/hunger" + (10-hero.hunger) + ".png");
+                            
+
+                            Health1.rctSrc.Width += 14 * 3;
+                            Health1.rctDst.Width += 15 * 3;
+                            
+                            if(hero.health==100)
+                            {
+                                Health1.rctSrc.Width -= 14 * 2;
+                                Health1.rctDst.Width -= 15 * 2;
+                            }
+
+
+                            hero.Inventory.RemoveItem(foodItem.itemID, 1);
+                        }
+                    }
                     break;
                 case Keys.F:
                     int hotbarIndex = HotBarItemsBorder.Vars[0];
@@ -1562,7 +1637,12 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                     clickY <= block.Y + block.H &&
                                     clickY >= block.Y)
                                 {
-                                    
+                                    // Get the blockID from the hotbar selection
+                                    int itemIndex = HotBarItemsBorder.Vars[0];
+                                
+
+                                    if (block.ID == 15 && hero.Inventory.items[itemIndex].itemID !=21)
+                                        break;
                                     isBreaking = 1;
                                     breakedImg = block.Img;
                                     breakingI = i; //for removing the block
@@ -1616,6 +1696,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                         hero.Inventory.AddItem(block.Items[j]);
                                         block.looted = true;
                                     }
+                                    block.Items[1].quantity = 64;
                                 }
                             }
                         }
@@ -1895,7 +1976,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Animation otherBlocks = new Animation();
             otherBlocks.imgs.Add(new Bitmap("Images/Blocks/ladder.png")); 
             otherBlocks.imgs.Add(new Bitmap("Images/Blocks/elevator.png")); 
-            otherBlocks.imgs.Add(new Bitmap("Images/Blocks/jail.png"));  // Last Block image  (2) 
+            otherBlocks.imgs.Add(new Bitmap("Images/Blocks/jail.png"));  
+            otherBlocks.imgs.Add(new Bitmap("Images/Blocks/crafting.png"));  // Last Block image  (3) 
 
             Groups[1].Animations.Add(oreBlocks);
             Groups[1].Animations.Add(otherBlocks);
