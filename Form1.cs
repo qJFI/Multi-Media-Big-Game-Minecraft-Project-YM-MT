@@ -560,7 +560,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     x = column * blockWidth;
 
                    
-                } while (CheckOverlap(existingTreePositions, x) && x!=960 && x < 180 && x> 300);
+                } while (CheckOverlap(existingTreePositions, x) && (x<=880 || x>=1020) &&( x < 120 || x> 400) );
 
                 existingTreePositions.Add(x);
 
@@ -612,7 +612,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 };
                 ElevatorBlocks.Add(Elevator);
 
-                this.Text = ("" + Elevator.X + ", " + Elevator.Y + ", " + hero.X);
+               
 
                 
             }
@@ -765,7 +765,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                             BulletsTrav.Y + BulletsTrav.H > enemy.Y)
                         {
                             // Bullet hits the enemy
-                            Text = "" + BulletsTrav.X + "  " + enemy.X;
+                           
                             enemy.health -= 30;
                             Effect pnnEffect = new Effect();
                             pnnEffect.X = enemy.X;
