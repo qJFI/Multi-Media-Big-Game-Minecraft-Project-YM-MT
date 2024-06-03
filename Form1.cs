@@ -22,14 +22,16 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         public int stTime, endTime;
        
     }
-
-
-    public class ladder
+    public class Chest
     {
         public int X, Y, W, H;
-        public Bitmap img;
-       
+        public Bitmap img = new Bitmap("Images/Blocks/chest.png");
+        public bool looted = false;
+        public List<InventoryItem> Items = new List<InventoryItem>();
     }
+
+
+  
     public class cAdvImg {
 
         public Rectangle rctSrc;
@@ -232,7 +234,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         Bitmap HeroImg = new Bitmap("Images/hero1.png");
         Rectangle rctSrc, rctDst;
         Hero hero;
-        Hero Zombie;
+       
         AnimatedBlock breaking = null;
         Bitmap breakedImg = null;
         BasicActor Sun; //in single actor
@@ -241,7 +243,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         cAdvImg Health1 = new cAdvImg();
         BasicActor Health2 = new BasicActor();
         BasicActor Hunger = new BasicActor();
-   
+        List<Chest> Chests = new List<Chest>();
 
         int iframe = 0;
         int breakingI = -1, breakingJ = -1;
@@ -317,16 +319,6 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             hero.Y = ClientSize.Height - hero.H - 50;
             hero.imgs = new List<Bitmap>(Groups[0].Animations[0].imgs); // Choosed group
 
-            // Hero
-            /*
-            Zombie = new Hero();
-            Zombie.W = HeroImg.Width / 2;
-            Zombie.H = HeroImg.Height / 3;
-            Zombie.X = ClientSize.Width / 2;
-            Zombie.Y = ClientSize.Height - Zombie.H - 50;
-            Zombie.imgs = new List<Bitmap>(Groups[0].Animations[0].imgs);
-            */
-            //create the hotbar borders
 
             HotBarItemsBorder.X = ClientSize.Width / 2 - 450;
             HotBarItemsBorder.Y = ClientSize.Height - 100;
@@ -376,21 +368,13 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             Hunger.Vars.Add(0);
             Hunger.imgs.Add(new Bitmap("Images/hotbar/hunger0.png"));
 
-            //Gun
-            Bitmap gunImage = new Bitmap("Images/heroTools/gun.png");
-       
-            InventoryItem gun = new InventoryItem(HotBarItemsBorder.X + 30, HotBarItemsBorder.Y,60,60,gunImage,20);
-            hero.Inventory.AddItem (gun);
-       
-
             // Create random biome blocks
             CreateRandomBiomeBlocks();
 
             // Tree
             CreateTrees();
 
-            /* //Zombies
-             CreateZombie();*/
+            
            
 
             CreateUpper();
@@ -406,7 +390,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         {
             int blockWidth = 60; // Set your block width
             int blockHeight = 60; // Set your block height
-            int columns = ClientSize.Width / blockWidth;
+            int columns = 60;
             int rows = 20; // Number of rows of blocks
             yPos = ClientSize.Height - blockHeight * rows + 1000; // Starting Y position of the bottom row
 
@@ -417,7 +401,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             for (int i = 0; i < rows; i++)
             {
                 List<Block> rowBlocks = new List<Block>();
-                for (int j = 0; j < columns +30; j++)
+                for (int j = 0; j < columns ; j++)
                 {
                     Block blockPnn = new Block();
                     blockPnn.X = j * blockWidth;
@@ -467,12 +451,28 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             int blockHeight = 60; // Set your block height
             int columns = ClientSize.Width / blockWidth;
             //int rows = 2; // Number of rows of blocks
-            int UpperYPos = ClientSize.Height - blockHeight  + 1000 - 30*60; 
+            int UpperYPos = ClientSize.Height - blockHeight  + 1000 - 30*60;
+
+
+            Chest chest1 = new Chest
+            {
+                X = 60 * 23,
+                Y = UpperYPos,
+                W = 60,
+                H = 60
+            };
+            Bitmap gunImage = new Bitmap("Images/heroTools/gun.png");
+            InventoryItem gun = new InventoryItem(HotBarItemsBorder.X + 30, HotBarItemsBorder.Y, 60, 60, gunImage, 20);
+          
+            chest1.Items.Add(gun);
+            Chests.Add(chest1);
+
+       
 
             List<Block> rowBlocks = new List<Block>();
             for (int j = 0; j < columns + 30; j++)
             {
-                if (j * blockWidth <180|| j * blockWidth>300) { 
+                if (j * blockWidth <180|| j * blockWidth>300 && j * blockWidth!=960) { 
                 Block blockPnn = new Block();
                 blockPnn.X = j * blockWidth;
                 blockPnn.Y = UpperYPos + (blockHeight);
@@ -550,7 +550,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 int x;
                 do
                 {
-                    x = RR.Next(0, ClientSize.Width - 60);
+                    x = RR.Next(0, 3400);
                     x = (int)((x / camera.ZoomFactor) + viewRect.X);
 
 
@@ -560,7 +560,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     x = column * blockWidth;
 
                    
-                } while (CheckOverlap(existingTreePositions, x) && (x<=880 || x>=1020) &&( x < 120 || x> 400) );
+                } while (CheckOverlap(existingTreePositions, x) && (x>=880 && x<=1020) &&( x > 120 && x< 400) );
 
                 existingTreePositions.Add(x);
 
@@ -667,7 +667,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             {
                 int position = existingPositions[i];
 
-                if (newX >= position - 100 && newX <= position + 150)
+                if (newX >= position - 500 && newX <= position + 500)
                 {
                     return true;
                 }
@@ -795,7 +795,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
-            if((ctTimer)%100==0)
+            if((ctTimer+1)%80==0)
             {
                 CreateZombie();
             }
@@ -1047,7 +1047,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                    
                     if (newX+50 < block.X + block.W &&
                         newX + heroWidth-50 > block.X &&
-                        newY-100  < block.Y + block.H &&
+                        newY +20 < block.Y + block.H &&
                         newY + heroHeight-50 > block.Y && 
                         block.Z == 0)
                     {
@@ -1259,8 +1259,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     // Calculate the hitbox for the laser
                     int a  = (hero.X + hero.W);
                     int b = camera.GetViewRect().X + ex;
-                    
-                    int laserStartX, laserEndX, laserStartY,laserEndY;
+
+                    int laserStartX, laserEndX;
                     if (a<b)
                     {
                          laserStartX = a;
@@ -1290,7 +1290,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                        
                         
                         // Check if the laser intersects with the enemy's hitbox
-                        if ((enemy.X >= laserStartX && enemy.X + enemy.W <= laserEndX) &&
+                        if ((enemy.X >= laserStartX-100 && enemy.X + enemy.W <= laserEndX) &&
                                (laserY >= enemy.Y && laserY <= enemy.Y + enemy.H )
 
                          )
@@ -1451,18 +1451,36 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         int blockID = hero.Inventory.items[hotbarIndex].itemID;
                         PlaceBlock(clickX1, clickY1, blockID);
                     }
-                    
+
+                    for (int i = 0; i < Chests.Count; i++)
+                    {
+                        
+                        Chest block = Chests[i];
+                        if (block.X < hero.X + hero.HeroHitBox &&
+                               block.X >= hero.X - hero.HeroHitBox &&
+                               block.Y < hero.Y + hero.HeroHitBox &&    //check range
+                                block.Y >= hero.Y - hero.HeroHitBox
+                               )
+                        {
+
+                            if (!block.looted) 
+                            {
+                                if (clickX1 <= block.X + block.W && clickX1 >= block.X &&
+                                     clickY1 >= block.Y && clickY1 <= block.Y + block.H)
+                                {
+                                    for (int j = 0; j < block.Items.Count; j++)
+                                    {
+                                        hero.Inventory.AddItem(block.Items[j]);
+                                        block.looted = true;
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+
                     break;
-                    // Right mouse button logic (Build logic)
-                case MouseButtons.XButton1:  //The bonus button 1
-                    HotBarItemsBorder.Vars[0] = 2;
-                    break;
-                case MouseButtons.XButton2:  //The bonus button 2
-                    HotBarItemsBorder.Vars[0] = 4;
-                    break;
-                case MouseButtons.Middle:  //The bonus button 2
-                    HotBarItemsBorder.Vars[0] = 0;
-                    break;
+             
             }
         }
 
@@ -1553,6 +1571,16 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
+            for (int i = 0; i < Chests.Count; i++)
+            {
+                Chest block = Chests[i];
+                g.DrawImage(block.img,
+                            (block.X - viewRect.X) * camera.ZoomFactor,
+                            (block.Y - viewRect.Y) * camera.ZoomFactor,
+                            block.W * camera.ZoomFactor,
+                            block.H * camera.ZoomFactor);
+            }
+
             if (isBreaking == 1)
             {
                 g.DrawImage(breaking.imgs[breaking.iframe % breaking.imgs.Count],
@@ -1608,7 +1636,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             if (laser >0)
             {
                 Pen P = new Pen(Color.Red, 5);
-                g.DrawLine(P, (location1.X - viewRect.X) * camera.ZoomFactor, (location1.Y - viewRect.Y) * camera.ZoomFactor, location2.X, location2.Y);
+                g.DrawLine(P, (location1.X - viewRect.X) * camera.ZoomFactor, (location1.Y - viewRect.Y) * camera.ZoomFactor, location2.X,( location2.Y - viewRect.Y) * camera.ZoomFactor);
             }
 
             //dont draw thing after this block just before
@@ -1699,25 +1727,25 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
 
             //blocks
-            Animation staticBlocks = new Animation();
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/grass.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Dirt.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Oak.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/grassleaves.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/stone.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Coal.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Diamond.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Emerald.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Gold.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Ruby.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Sapphire.png"));
-            staticBlocks.imgs.Add(new Bitmap("Images/Blocks/Iron.png")); // Last Block image  (11)
+            Animation oreBlocks = new Animation();
+            oreBlocks.imgs.Add(new Bitmap("Images/Blocks/grass.png"));
+            oreBlocks.imgs.Add(new Bitmap("Images/Blocks/Dirt.png"));
+            oreBlocks.imgs.Add(new Bitmap("Images/Blocks/Oak.png"));
+            oreBlocks.imgs.Add(new Bitmap("Images/Blocks/grassleaves.png"));
+            oreBlocks.imgs.Add(new Bitmap("Images/Blocks/stone.png"));
+            oreBlocks.imgs.Add(new Bitmap("Images/Blocks/Coal.png"));
+            oreBlocks.imgs.Add(new Bitmap("Images/Blocks/Diamond.png"));
+            oreBlocks.imgs.Add(new Bitmap("Images/Blocks/Emerald.png"));
+            oreBlocks.imgs.Add(new Bitmap("Images/Blocks/Gold.png"));
+            oreBlocks.imgs.Add(new Bitmap("Images/Blocks/Ruby.png"));
+            oreBlocks.imgs.Add(new Bitmap("Images/Blocks/Sapphire.png"));
+            oreBlocks.imgs.Add(new Bitmap("Images/Blocks/Iron.png")); // Last Block image  (11)
           
             Animation otherBlocks = new Animation();
             otherBlocks.imgs.Add(new Bitmap("Images/Blocks/ladder.png")); 
             otherBlocks.imgs.Add(new Bitmap("Images/Blocks/elevator.png"));  // Last Block image  (2) 
 
-            Groups[1].Animations.Add(staticBlocks);
+            Groups[1].Animations.Add(oreBlocks);
             Groups[1].Animations.Add(otherBlocks);
 
             Animation blockBorders = new Animation();
