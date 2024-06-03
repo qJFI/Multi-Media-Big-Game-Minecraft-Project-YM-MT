@@ -243,8 +243,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         cAdvImg Health1 = new cAdvImg();
         BasicActor Health2 = new BasicActor();
         BasicActor Hunger = new BasicActor();
-        List<Chest> Chests = new List<Chest>();
 
+        int ZombieSpwanQuantity = 3;
         int iframe = 0;
         int breakingI = -1, breakingJ = -1;
         int zoom = -10;
@@ -253,7 +253,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         int zoomRange = 10;
         int healthValue = 100;
         int hungerValue = 10;
-        int minuteCounter = 0;
+     
         int yPos;
         int laser = -1;
         Point location1 = new Point(-1,-1);
@@ -270,6 +270,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         List<Enemy> Enemies = new List<Enemy>();
         List<Bullet> Bullets = new List<Bullet>();
         List<Effect> Effects = new List<Effect>();
+        List<Chest> Chests = new List<Chest>();
         //List<InventoryItem> heroTools = new List<InventoryItem>();
         bool isBroken = false;
         bool onElev = false;
@@ -490,7 +491,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
         void CreateZombie()
         {
-            int zombieCount = 3; // Number of zombies to create
+            int zombieCount = ZombieSpwanQuantity; // Number of zombies to create
             int blockWidth = 60;
             
             Bitmap woodImage = Groups[1].Animations[0].imgs[2]; // Wood image from staticBlock
@@ -699,7 +700,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         private void UpdateHungerStatus()
         {
             int totalFrames = 11;
-            int elapsedMinutes = minuteCounter / 60;
+            int elapsedMinutes = ctTimer / 60;
             hungerValue = elapsedMinutes % totalFrames;
 
             Hunger.imgs[0] = new Bitmap("Images/hotbar/hunger" + hungerValue + ".png");
@@ -826,8 +827,11 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         EnemyTrav.dir *= -1;
                     }
 
+                    //follow hero
+                   
 
-                    EnemyTrav.iframe++;
+
+                        EnemyTrav.iframe++;
                     if (hero.X < EnemyTrav.X + EnemyTrav.W &&
                         hero.X + hero.W > EnemyTrav.X &&
                         hero.Y < EnemyTrav.Y + EnemyTrav.H &&
@@ -852,6 +856,28 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     {
                         EnemyTrav.dir = 1;
                         EnemyTrav.imgs = Groups[2].Animations[0].imgs;
+                    }
+                    else if (EnemyTrav.X < hero.X + 500 &&
+                        EnemyTrav.X > hero.X - 500 &&
+                        EnemyTrav.Y < hero.Y + hero.H &&
+                        EnemyTrav.Y + EnemyTrav.H > hero.Y)
+                    {
+
+                        if (hero.X >= EnemyTrav.X)
+                            EnemyTrav.dir = 1;
+                        else
+                            EnemyTrav.dir = -1;
+
+
+                        if (EnemyTrav.dir == -1)
+                        {
+                            EnemyTrav.imgs = Groups[2].Animations[1].imgs;
+                        }
+                        else
+                        {
+                            EnemyTrav.imgs = Groups[2].Animations[0].imgs;
+                        }
+
                     }
                 }
             }
@@ -953,14 +979,18 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
-            minuteCounter++;
+          
 
             
-            if (minuteCounter % 60 == 0)
+            if (ctTimer % 60 == 0)
             {
                 UpdateHungerStatus();
+               
             }
-
+            if (ctTimer+1 % 400 == 0)
+            {  
+                ZombieSpwanQuantity++;
+            }
             //always
             if (hero.isHeroStable == 0) //always
             {
@@ -1193,9 +1223,11 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     Inventory.Vars[0] *= -1;
                     break;
                 case Keys.F:
-                    if( HotBarItemsBorder.Vars[0] == 0)
+                    int hotbarIndex = HotBarItemsBorder.Vars[0];
+                  
+                    if (hotbarIndex < hero.Inventory.items.Count && hero.Inventory.items[hotbarIndex].itemID == 20)
                     {
-                       Bullet bulletPnn = new Bullet();
+                        Bullet bulletPnn = new Bullet();
                         bulletPnn.X = hero.X + hero.W -50;
                         bulletPnn.Y = hero.Y+30 ;
                         bulletPnn.W = 40;
@@ -1327,8 +1359,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         {
             if(blockID>=20)
             { return; }
-            int blockWidth = 60; // Ensure this matches your block width
-            int blockHeight = 60; // Ensure this matches your block height
+            int blockWidth = 60; 
+            int blockHeight = 60;
 
             // Determine the column and row based on the mouse click position
             int column = x / blockWidth;
