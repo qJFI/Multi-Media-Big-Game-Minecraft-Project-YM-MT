@@ -488,21 +488,65 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
             blocks2D.Add(rowBlocks);
         }
+        void CreateCreeper()
+        {
+            int zombieCount = ZombieSpwanQuantity-2; // Number of zombies to create
+            int blockWidth = 60;
 
+           
+            Rectangle viewRect = camera.GetViewRect();
+            for (int i = 0; i < zombieCount; i++)
+            {
+                int x;
+
+                x = RR.Next(0, 3400);
+               
+
+
+                // Determine the column and row based on the mouse click position
+                int column = x / blockWidth;
+
+                x = column * blockWidth;
+
+
+
+
+                int imgdir = RR.Next(0, 2);
+                int Dir = 1;
+                if (imgdir == 1)
+                {
+                    Dir = -1;
+                }
+                imgdir += 2;
+                Enemy Creeper = new Enemy
+                {
+                    X = x,
+                    Y = yPos - hero.H,
+                    W = hero.W,
+                    H = hero.H,
+
+                    type = 1,
+                    dir = Dir,
+                    imgs = Groups[2].Animations[imgdir].imgs,
+                    health = 200,
+                    fullHealth = 200,
+                };
+                Enemies.Add(Creeper);
+            }
+        }
         void CreateZombie()
         {
             int zombieCount = ZombieSpwanQuantity; // Number of zombies to create
             int blockWidth = 60;
             
-            Bitmap woodImage = Groups[1].Animations[0].imgs[2]; // Wood image from staticBlock
-            List<int> existingTreePositions = new List<int>();
+       
             Rectangle viewRect = camera.GetViewRect();
             for (int i = 0; i < zombieCount; i++)
             {
                 int x;
              
-                    x = RR.Next(0, ClientSize.Width - 60);
-                    x = (int)((x / camera.ZoomFactor) + viewRect.X);
+                    x = RR.Next(0, 3400);
+                    
 
 
                     // Determine the column and row based on the mouse click position
@@ -526,7 +570,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     W = hero.W,
                     H = hero.H,
                    
-
+                    type =0,
                     dir = Dir,
                     imgs = Groups[2].Animations[imgdir].imgs,
                     health = 200,
@@ -552,7 +596,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 do
                 {
                     x = RR.Next(0, 3400);
-                    x = (int)((x / camera.ZoomFactor) + viewRect.X);
+                   
 
 
                     // Determine the column and row based on the mouse click position
@@ -799,15 +843,17 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             if((ctTimer+1)%80==0)
             {
                 CreateZombie();
+                CreateCreeper();
+               
             }
-
-            if(ctTimer%5==0)
+            
+            if (ctTimer%5==0)
             {
                 //enemie move
                 for (int i = 0; i < Enemies.Count; i++)
                 {
                     Enemy EnemyTrav = Enemies[i];
-
+                    int type = EnemyTrav.type*2;
                     if (!IsEnemyOnGround(EnemyTrav))
                         EnemyTrav.Y += 15;
 
@@ -818,11 +864,11 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         EnemyTrav.moveCt = 30;
                         if(EnemyTrav.dir==1)
                         {
-                            EnemyTrav.imgs = Groups[2].Animations[1].imgs;
+                            EnemyTrav.imgs = Groups[2].Animations[1+type].imgs;
                         }
                         else
                         {
-                            EnemyTrav.imgs = Groups[2].Animations[0].imgs;
+                            EnemyTrav.imgs = Groups[2].Animations[0 + type].imgs;
                         }
                         EnemyTrav.dir *= -1;
                     }
@@ -837,25 +883,47 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         hero.Y < EnemyTrav.Y + EnemyTrav.H &&
                         hero.Y + hero.H > EnemyTrav.Y)
                     {
-                        EnemyTrav.dir = 0;
-                        // Enemy touches the hero
-                        hero.health -= 4;
-                        Effect pnnEffect = new Effect();
-                        pnnEffect.X = hero.X;
-                        pnnEffect.Y = hero.Y;
-                        pnnEffect.W = 100;
-                        pnnEffect.H = 100;
-                        pnnEffect.imgs = Groups[3].Animations[0].imgs; // Blood
-                        pnnEffect.stTime = ctTimer;
-                        pnnEffect.endTime = ctTimer + 7;
-                        Effects.Add(pnnEffect);
-                        Health1.rctSrc.Width -= 11;
-                        Health1.rctDst.Width -= 12;
+                        if (EnemyTrav.type == 0)
+                        {
+                            EnemyTrav.dir = 0;
+                            // Enemy touches the hero
+                            hero.health -= 4;
+                            Effect pnnEffect = new Effect();
+                            pnnEffect.X = hero.X;
+                            pnnEffect.Y = hero.Y;
+                            pnnEffect.W = 100;
+                            pnnEffect.H = 100;
+                            pnnEffect.imgs = Groups[3].Animations[0].imgs; // Blood
+                            pnnEffect.stTime = ctTimer;
+                            pnnEffect.endTime = ctTimer + 7;
+                            Effects.Add(pnnEffect);
+                            Health1.rctSrc.Width -= 11;
+                            Health1.rctDst.Width -= 12;
+                        }
+                        else if (EnemyTrav.type == 1)
+                        {
+                            hero.health -= 4*3;
+                            Effect pnnEffect = new Effect();
+                            pnnEffect.X = EnemyTrav.X;
+                            pnnEffect.Y = EnemyTrav.Y;
+                            pnnEffect.W = EnemyTrav.W;
+                            pnnEffect.H = EnemyTrav.H;
+                            pnnEffect.imgs = Groups[3].Animations[2].imgs; // explosion
+                            pnnEffect.stTime = ctTimer;
+                            pnnEffect.endTime = ctTimer + 7;
+                            Effects.Add(pnnEffect);
+                            Health1.rctSrc.Width -= 14 *3;
+                            Health1.rctDst.Width -= 15 *3;
+                            Enemies.RemoveAt(i);
+                          
+                         
+                            i--;
+                        }
                     }
                     else if (EnemyTrav.dir == 0)
                     {
                         EnemyTrav.dir = 1;
-                        EnemyTrav.imgs = Groups[2].Animations[0].imgs;
+                        EnemyTrav.imgs = Groups[2].Animations[0 + type].imgs;
                     }
                     else if (EnemyTrav.X < hero.X + 500 &&
                         EnemyTrav.X > hero.X - 500 &&
@@ -871,11 +939,11 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
                         if (EnemyTrav.dir == -1)
                         {
-                            EnemyTrav.imgs = Groups[2].Animations[1].imgs;
+                            EnemyTrav.imgs = Groups[2].Animations[1 + type].imgs;
                         }
                         else
                         {
-                            EnemyTrav.imgs = Groups[2].Animations[0].imgs;
+                            EnemyTrav.imgs = Groups[2].Animations[0 + type].imgs;
                         }
 
                     }
@@ -1808,6 +1876,20 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
             Groups[2].Animations.Add(ZombieLeft);
 
+
+            Animation CreeperRight = new Animation();
+            for (int i = 0; i < 11; i++)
+            {
+                CreeperRight.imgs.Add(new Bitmap("Images/Monsters/creeper/creeperRight/creeper (" + (i + 1) + ").gif"));
+            }
+            Groups[2].Animations.Add(CreeperRight);
+            Animation CreeperLeft = new Animation();
+            for (int i = 0; i < 11; i++)
+            {
+                CreeperLeft.imgs.Add(new Bitmap("Images/Monsters/creeper/creeperLeft/creeper (" + (i + 1) + ").gif"));
+            }
+            Groups[2].Animations.Add(CreeperLeft);
+
             //effects 
             Animation blood = new Animation();
             for (int i = 0; i < 14; i++)
@@ -1822,6 +1904,12 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             }
             Groups[3].Animations.Add(zombieblood);
 
+            Animation creeperParticles = new Animation();
+            for (int i = 0; i < 14; i++)
+            {
+                creeperParticles.imgs.Add(new Bitmap("Images/creeperParticles/creeper (" + (i + 1) + ").gif"));
+            }
+            Groups[3].Animations.Add(creeperParticles);
 
         }
 
