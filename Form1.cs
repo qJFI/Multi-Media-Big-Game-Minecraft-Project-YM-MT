@@ -6,13 +6,13 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace Multi_Media_Minecraft_Project_YM_MT
 {
-    /*
-        public class OneImageBasicActor
+    
+        public class Actor
         {
             public int X, Y, W, H;
             public Bitmap img;
             public List<int> Vars = new List<int>();
-        }*/
+        }
 
     public class Effect
     {
@@ -234,7 +234,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         Bitmap HeroImg = new Bitmap("Images/hero1.png");
         Rectangle rctSrc, rctDst;
         Hero hero;
-       
+        List<Block> jailBlocks;
         AnimatedBlock breaking = null;
         Bitmap breakedImg = null;
         BasicActor Sun; //in single actor
@@ -243,7 +243,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         cAdvImg Health1 = new cAdvImg();
         BasicActor Health2 = new BasicActor();
         BasicActor Hunger = new BasicActor();
-
+        Actor alex = new Actor();
         int ZombieSpwanQuantity = 3;
         int iframe = 0;
         int breakingI = -1, breakingJ = -1;
@@ -251,6 +251,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         int isBreaking = 0;
         int isLeftClick = 0;
         int zoomRange = 10;
+        bool isWin = false;
         int healthValue = 100;
         int hungerValue = 10;
      
@@ -395,6 +396,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             int rows = 20; // Number of rows of blocks
             yPos = ClientSize.Height - blockHeight * rows + 1000; // Starting Y position of the bottom row
 
+          
 
             makeladder(960, yPos, Groups[1].Animations[1].imgs[0]);
             makeElevator(180, yPos, Groups[1].Animations[1].imgs[1]);
@@ -445,7 +447,26 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
                 blocks2D.Add(rowBlocks);
             }
-
+           jailBlocks = new List<Block>();
+            alex.W = hero.W;
+            alex.H = hero.H;
+            alex.X = 3000;
+            alex.Y = 30 * 60 - alex.H;
+            alex.img = new Bitmap("Images/alex.png");
+            for (int i = 0; i < 5; i++)
+            {
+                for (int j = 0; j <5; j++)
+                {
+                    Block blockPnn = new Block();
+                    blockPnn.X = alex.X -100+ j * blockWidth;
+                    blockPnn.Y = alex.Y-80+ (i * blockHeight);
+                    blockPnn.W = blockWidth;
+                    blockPnn.H = blockHeight;
+                    blockPnn.Img = Groups[1].Animations[1].imgs[2];
+                    jailBlocks.Add(blockPnn);
+                }
+            }
+            blocks2D.Add(jailBlocks);
             // Adjust hero position to be on top of the grass blocks
             hero.Y = yPos - hero.H + 10;
         }
@@ -526,7 +547,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 {
                     X = x,
                     Y = hero.Y,
-                    W = hero.W,
+                    W = hero.W+50,
                     H = hero.H,
 
                     type = 1,
@@ -770,6 +791,13 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         {
             if (hero.health <= 0)
                 return;
+            if (isWin) {
+                DrawDouble(CreateGraphics());
+                hero.health = 0;
+                MessageBox.Show("Congrats You Won");
+                    t.Stop();
+                return;
+                    }
 
             for (int i = 0; i < Effects.Count; i++)
             {
@@ -1006,16 +1034,17 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
             if (IsOnElev() && !elevatorMovingUp && !elevatorMovingDown)
             {
-                if (ElevatorBlocks[0].Y <= ElevLimit)
+                if (ElevatorBlocks[0].Y >= 60*15)
                 {
                     hero.Y -=15;
-                    elevatorMovingDown = true;
+                    elevatorMovingUp = true;
+                    
 
                 }
                 else
                 {
                     hero.Y -= 15;
-                    elevatorMovingUp = true;
+                    elevatorMovingDown = true;
                 }
 
             }
@@ -1034,7 +1063,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
             if (breaking != null && isBreaking == 1)
             {
-                if (ctTimer % 3 == 0 && breaking.iframe < 5)
+                if (ctTimer % 2 == 0 && breaking.iframe < 5)
                 {
                     breaking.iframe++;
                 }
@@ -1131,7 +1160,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         hero.Y + hero.H <= block.Y + block.H  &&
                         hero.Y + hero.H + 10 >= block.Y && (block.Z ==0 || block.Z == 2)) // Adjust 10 as per the gravity
                     {
-                        hero.Y = block.Y - hero.H+10; // Adjust hero's position to stand on the block
+                        //hero.Y = block.Y - hero.H+10; // Adjust hero's position to stand on the block
                         return true;
                     }
                 }
@@ -1195,6 +1224,14 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             return false;
         }
 
+        void checkWin()
+        {
+            if(hero.X<=alex.X+20&& hero.X >= alex.X - 20 && hero.Y <= alex.Y+20 && hero.Y >= alex.Y  -20)
+            {
+                isWin =true; 
+            }
+
+        }
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             int newHeroX;
@@ -1211,6 +1248,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         hero.imgs = Groups[0].Animations[2].imgs;
                         hero.dir = 1;
                     }
+                    checkWin();
                     break;
                 case Keys.A:
                 case Keys.Left:
@@ -1223,7 +1261,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         hero.imgs = Groups[0].Animations[3].imgs;
                         hero.dir = -1;
                     }
-                   
+                    checkWin();
                     break;
                 //case Keys.W:
                 case Keys.Up:               //Jumping
@@ -1246,6 +1284,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     break;
                 case Keys.S:
                 case Keys.Down:
+                    hero.Y += 50;
                     if (IsOnLadder())
                     {
                         hero.Y += 50;
@@ -1660,6 +1699,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         (hero.Y - viewRect.Y) * camera.ZoomFactor,
                         hero.W * camera.ZoomFactor,
                         hero.H * camera.ZoomFactor);
+            //alex
+            g.DrawImage(alex.img, (alex.X - viewRect.X) * camera.ZoomFactor, (alex.Y - viewRect.Y) * camera.ZoomFactor, alex.W * camera.ZoomFactor, alex.H * camera.ZoomFactor);
 
             for (int j = 0; j < blocks2D.Count; j++)
             {
@@ -1674,7 +1715,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                 block.H * camera.ZoomFactor);
                 }
             }
-
+         
             for (int i = 0; i < Chests.Count; i++)
             {
                 Chest block = Chests[i];
@@ -1743,6 +1784,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 g.DrawLine(P, (location1.X - viewRect.X) * camera.ZoomFactor, (location1.Y - viewRect.Y) * camera.ZoomFactor, location2.X,( location2.Y - viewRect.Y) * camera.ZoomFactor);
             }
 
+            
+           
             //dont draw thing after this block just before
             for (int i = 0; i < droppedItems.Count; i++)
             {
@@ -1778,6 +1821,10 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     g.DrawImage(hero.Inventory.items[i].Img, cX, cY, cW, cH);
                     g.DrawString(hero.Inventory.items[i].quantity.ToString(), new Font("Arial", 12, FontStyle.Bold), Brushes.White, cX, cY);
                 }
+            }
+            if(isWin)
+            {
+                g.DrawImage(new Bitmap("Images/win.png"), 0, 0, ClientSize.Width, ClientSize.Height);
             }
         }
 
@@ -1847,7 +1894,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
           
             Animation otherBlocks = new Animation();
             otherBlocks.imgs.Add(new Bitmap("Images/Blocks/ladder.png")); 
-            otherBlocks.imgs.Add(new Bitmap("Images/Blocks/elevator.png"));  // Last Block image  (2) 
+            otherBlocks.imgs.Add(new Bitmap("Images/Blocks/elevator.png")); 
+            otherBlocks.imgs.Add(new Bitmap("Images/Blocks/jail.png"));  // Last Block image  (2) 
 
             Groups[1].Animations.Add(oreBlocks);
             Groups[1].Animations.Add(otherBlocks);
