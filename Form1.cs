@@ -472,6 +472,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     blockPnn.W = blockWidth;
                     blockPnn.H = blockHeight;
                     blockPnn.ItemType = 15;
+                    blockPnn.ID = 15;
                     blockPnn.Img = Groups[1].Animations[1].imgs[2];
                     jailBlocks.Add(blockPnn);
                 }
@@ -1086,7 +1087,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 }
             }
 
-            if (breaking != null && isBreaking == 1 && breaking.ID != 15)
+            if (breaking != null && isBreaking == 1 )
             {
                 if (ctTimer % 2 == 0 && breaking.iframe < 5)
                 {
@@ -1185,7 +1186,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         hero.Y + hero.H <= block.Y + block.H  &&
                         hero.Y + hero.H + 10 >= block.Y && (block.Z ==0 || block.Z == 2)) // Adjust 10 as per the gravity
                     {
-                        //hero.Y = block.Y - hero.H+10; // Adjust hero's position to stand on the block
+                        hero.Y = block.Y - hero.H+10; // Adjust hero's position to stand on the block
                         return true;
                     }
                 }
@@ -1309,7 +1310,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     break;
                 case Keys.S:
                 case Keys.Down:
-                    hero.Y += 50;
+                  
                     if (IsOnLadder())
                     {
                         hero.Y += 50;
@@ -1640,9 +1641,15 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                                     // Get the blockID from the hotbar selection
                                     int itemIndex = HotBarItemsBorder.Vars[0];
                                 
-
-                                    if (block.ID == 15 && hero.Inventory.items[itemIndex].itemID !=21)
+                                    if(itemIndex< hero.Inventory.items.Count) { 
+                                        if (block.ID == 15 && hero.Inventory.items[itemIndex].itemID !=21)
+                                            break;
+                                       
+                                    }
+                                    else if (block.ID == 15 && itemIndex >= hero.Inventory.items.Count)
+                                    {
                                         break;
+                                    }
                                     isBreaking = 1;
                                     breakedImg = block.Img;
                                     breakingI = i; //for removing the block
