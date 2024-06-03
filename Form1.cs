@@ -404,40 +404,44 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 List<Block> rowBlocks = new List<Block>();
                 for (int j = 0; j < columns ; j++)
                 {
-                    Block blockPnn = new Block();
-                    blockPnn.X = j * blockWidth;
-                    blockPnn.Y = yPos + (i * blockHeight);
-                    blockPnn.W = blockWidth;
-                    blockPnn.H = blockHeight;
+                    int x = j * blockWidth;
+                    int y = yPos + (i * blockHeight);
+                    if (x < 180|| x > 300 && (x < 180 || y<25*60|| y> 30*60)) { 
+                        Block blockPnn = new Block();
+                        blockPnn.X = j * blockWidth;
+                        blockPnn.Y = yPos + (i * blockHeight);
+                        blockPnn.W = blockWidth;
+                        blockPnn.H = blockHeight;
                    
-                    if (i < 1)
-                    {
-                        blockPnn.Img = Groups[1].Animations[0].imgs[0]; // Always grass for the first 5 rows from the bottom
-                        blockPnn.ID = 0;
-                    }
-                    else if (i < 2)
-                    {
-                        blockPnn.Img = Groups[1].Animations[0].imgs[1];
-                        blockPnn.ID = 1;
-                    }
-                    else
-                    {
-                        int isStone = RR.Next(0, 3);
-
-                        if (isStone == 0)
+                        if (i < 1)
                         {
-                            int randomBlock = RR.Next(4, 12);
-                            blockPnn.ID = randomBlock;
-                            blockPnn.Img = Groups[1].Animations[0].imgs[randomBlock];
+                            blockPnn.Img = Groups[1].Animations[0].imgs[0]; // Always grass for the first 5 rows from the bottom
+                            blockPnn.ID = 0;
+                        }
+                        else if (i < 2)
+                        {
+                            blockPnn.Img = Groups[1].Animations[0].imgs[1];
+                            blockPnn.ID = 1;
                         }
                         else
                         {
-                            blockPnn.ID = 4;
-                            blockPnn.Img = Groups[1].Animations[0].imgs[4];
-                        }
-                    }
+                            int isStone = RR.Next(0, 3);
 
-                    rowBlocks.Add(blockPnn);
+                            if (isStone == 0)
+                            {
+                                int randomBlock = RR.Next(4, 12);
+                                blockPnn.ID = randomBlock;
+                                blockPnn.Img = Groups[1].Animations[0].imgs[randomBlock];
+                            }
+                            else
+                            {
+                                blockPnn.ID = 4;
+                                blockPnn.Img = Groups[1].Animations[0].imgs[4];
+                            }
+                        }
+
+                        rowBlocks.Add(blockPnn);
+                    }
                 }
                 blocks2D.Add(rowBlocks);
             }
@@ -521,7 +525,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 Enemy Creeper = new Enemy
                 {
                     X = x,
-                    Y = yPos - hero.H,
+                    Y = hero.Y,
                     W = hero.W,
                     H = hero.H,
 
@@ -566,7 +570,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 Enemy Zombie = new Enemy
                 {
                     X = x,
-                    Y = yPos - hero.H,
+                    Y = hero.Y,
                     W = hero.W,
                     H = hero.H,
                    
@@ -1020,7 +1024,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             if (elevatorMovingDown)
             {
                 MoveElevator(1);
-                if (ElevatorBlocks[0].Y >= yPos - 50)
+                if (ElevatorBlocks[0].Y >= yPos + 60*15)
                 {
                     elevatorMovingDown = false;
                     if (IsOnElev())
