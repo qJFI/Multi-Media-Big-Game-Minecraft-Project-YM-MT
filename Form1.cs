@@ -412,7 +412,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
 
 
             makeladder(960, yPos, Groups[1].Animations[1].imgs[0]);
-            makeElevator(200, yPos, Groups[1].Animations[1].imgs[1]);
+            makeElevator(180, yPos, Groups[1].Animations[1].imgs[1]);
 
             for (int i = 0; i < rows; i++)
             {
@@ -472,6 +472,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             List<Block> rowBlocks = new List<Block>();
             for (int j = 0; j < columns + 30; j++)
             {
+                if (j * blockWidth <180|| j * blockWidth>300) { 
                 Block blockPnn = new Block();
                 blockPnn.X = j * blockWidth;
                 blockPnn.Y = UpperYPos + (blockHeight);
@@ -482,6 +483,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 blockPnn.ID = 0;
 
                 rowBlocks.Add(blockPnn);
+                }
             }
             blocks2D.Add(rowBlocks);
         }
@@ -497,8 +499,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             for (int i = 0; i < zombieCount; i++)
             {
                 int x;
-                do
-                {
+             
                     x = RR.Next(0, ClientSize.Width - 60);
                     x = (int)((x / camera.ZoomFactor) + viewRect.X);
 
@@ -509,9 +510,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     x = column * blockWidth;
 
 
-                } while (CheckOverlap(existingTreePositions, x));
-
-                existingTreePositions.Add(x);
+             
 
                 int imgdir = RR.Next(0, 2);
                 int Dir = 1;
@@ -561,7 +560,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     x = column * blockWidth;
 
                    
-                } while (CheckOverlap(existingTreePositions, x));
+                } while (CheckOverlap(existingTreePositions, x) && x!=960 && x < 180 && x> 300);
 
                 existingTreePositions.Add(x);
 
@@ -574,9 +573,9 @@ namespace Multi_Media_Minecraft_Project_YM_MT
         void makeladder(int baseX, int baseY, Bitmap ladderImage)
         {
            ladderBlocks = new List<Block>();
-            blocks2D.Add(ladderBlocks); //->20
+            blocks2D.Add(ladderBlocks); 
           
-            // tree of height 5 blocks
+           
             for (int i = 1; i < 11; i++)
             {
                 Block ladderBlock = new Block
@@ -587,7 +586,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     H = 60,
                     Img = ladderImage,
                     ID = 14,
-                    Z = 1
+                    Z = 2
                 };
                 ladderBlocks.Add(ladderBlock);
             }
@@ -609,7 +608,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     H = 60,
                     Img = ElevatorImage,
                     ID = 14,
-                    Z = 1
+                    Z = 2
                 };
                 ElevatorBlocks.Add(Elevator);
 
@@ -639,7 +638,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     ID = 2,
                     Z = 1
                 };
-                blocks2D[20].Add(woodBlock);
+                TreesBlocks.Add(woodBlock);
             }
 
             int treeGrassTopY = baseY - (5 * 60) - 3 * 60;
@@ -657,7 +656,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                         ID = 3,
                         Z = 1
                     };
-                    blocks2D[20].Add(treeGrassBlock);
+                    TreesBlocks.Add(treeGrassBlock);
                 }
             }
         }
@@ -711,6 +710,10 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             for (int i = 0; i < ElevatorBlocks.Count; i++)
             {
                 ElevatorBlocks[i].Y += direction * 15;
+              
+               
+
+
             }
         }
 
@@ -803,7 +806,27 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 for (int i = 0; i < Enemies.Count; i++)
                 {
                     Enemy EnemyTrav = Enemies[i];
+
+                    if (!IsEnemyOnGround(EnemyTrav))
+                        EnemyTrav.Y += 15;
+
                     EnemyTrav.X += EnemyTrav.dir * EnemyTrav.speed;
+                    EnemyTrav.moveCt--;
+                    if(EnemyTrav.moveCt <=0)
+                    {
+                        EnemyTrav.moveCt = 30;
+                        if(EnemyTrav.dir==1)
+                        {
+                            EnemyTrav.imgs = Groups[2].Animations[1].imgs;
+                        }
+                        else
+                        {
+                            EnemyTrav.imgs = Groups[2].Animations[0].imgs;
+                        }
+                        EnemyTrav.dir *= -1;
+                    }
+
+
                     EnemyTrav.iframe++;
                     if (hero.X < EnemyTrav.X + EnemyTrav.W &&
                         hero.X + hero.W > EnemyTrav.X &&
@@ -869,23 +892,36 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     hero.Y += 15; // gravity
                 }
             }
-
-            if (IsOnElev() && !elevatorMovingUp && !elevatorMovingDown)
-            {
-                elevatorMovingUp = true;
-            }
-
+            int ElevLimit = ClientSize.Height - 60 + 1000 - 30 * 60;
             if (elevatorMovingUp)
             {
-                int ElevLimit = ClientSize.Height - 60 + 1000 - 30 * 60;
+                
                 MoveElevator(-1);
                 if (ElevatorBlocks[0].Y <= ElevLimit)
                 {
                     elevatorMovingUp = false;
-                    hero.X += 120;
-                    elevatorMovingDown = true;
+                    if (IsOnElev())
+                        hero.X += 120;
+                   
                 }
             }
+
+            if (IsOnElev() && !elevatorMovingUp && !elevatorMovingDown)
+            {
+                if (ElevatorBlocks[0].Y <= ElevLimit)
+                {
+                    hero.Y -=15;
+                    elevatorMovingDown = true;
+
+                }
+                else
+                {
+                    hero.Y -= 15;
+                    elevatorMovingUp = true;
+                }
+
+            }
+
 
             if (elevatorMovingDown)
             {
@@ -893,6 +929,8 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 if (ElevatorBlocks[0].Y >= yPos - 50)
                 {
                     elevatorMovingDown = false;
+                    if (IsOnElev())
+                    hero.X += 120;
                 }
             }
 
@@ -957,6 +995,27 @@ namespace Multi_Media_Minecraft_Project_YM_MT
             DrawDouble(CreateGraphics());
         }
 
+        private bool IsEnemyOnGround(Enemy EnemyTrav)
+        {
+            for (int i = 0; i < blocks2D.Count; i++)
+            {
+                List<Block> row = blocks2D[i];
+                for (int j = 0; j < row.Count; j++)
+                {
+                    Block block = row[j];
+                    if (EnemyTrav.X < block.X + block.W - 40 &&
+                        EnemyTrav.X + EnemyTrav.W - 40 > block.X &&
+                        EnemyTrav.Y  <= block.Y + block.H &&
+                        EnemyTrav.Y + EnemyTrav.H + 10 >= block.Y && (block.Z == 0)) // Adjust 10 as per the gravity
+                    {
+                        EnemyTrav.Y = block.Y - EnemyTrav.H + 10; 
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         private bool IsOnGround()
         {
             for (int i = 0; i < blocks2D.Count; i++)
@@ -968,7 +1027,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                     if (hero.X < block.X + block.W - 40 &&
                         hero.X + hero.W - 40 > block.X &&
                         hero.Y + hero.H <= block.Y + block.H  &&
-                        hero.Y + hero.H + 10 >= block.Y) // Adjust 10 as per the gravity
+                        hero.Y + hero.H + 10 >= block.Y && (block.Z ==0 || block.Z == 2)) // Adjust 10 as per the gravity
                     {
                         hero.Y = block.Y - hero.H+10; // Adjust hero's position to stand on the block
                         return true;
@@ -988,7 +1047,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                    
                     if (newX+50 < block.X + block.W &&
                         newX + heroWidth-50 > block.X &&
-                        newY +50 < block.Y + block.H &&
+                        newY-100  < block.Y + block.H &&
                         newY + heroHeight-50 > block.Y && 
                         block.Z == 0)
                     {
@@ -1026,7 +1085,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 if (hero.X + 50 < block.X + block.W &&
             hero.X + 50 + hero.W > block.X &&
             hero.Y <= block.Y + block.H &&
-            hero.Y + hero.H >= block.Y)
+            hero.Y + hero.H+50 >= block.Y)
                 {
                     return true;
                 }
@@ -1067,11 +1126,13 @@ namespace Multi_Media_Minecraft_Project_YM_MT
                 //case Keys.W:
                 case Keys.Up:               //Jumping
                 case Keys.Space:
-                    if (IsOnGround() && !hero.isJumping)
+
+                    int newHeroY = hero.Y - 50;
+                    if (IsOnGround() && !hero.isJumping )
                     {
                         hero.isJumping = true;
                     }
-                    
+                  
 
                     break;
                 case Keys.W:
@@ -1654,7 +1715,7 @@ namespace Multi_Media_Minecraft_Project_YM_MT
           
             Animation otherBlocks = new Animation();
             otherBlocks.imgs.Add(new Bitmap("Images/Blocks/ladder.png")); 
-            otherBlocks.imgs.Add(new Bitmap("Images/Blocks/elevator.png"));  // Last Block image  (1) 
+            otherBlocks.imgs.Add(new Bitmap("Images/Blocks/elevator.png"));  // Last Block image  (2) 
 
             Groups[1].Animations.Add(staticBlocks);
             Groups[1].Animations.Add(otherBlocks);
